@@ -1,23 +1,29 @@
 using UnityEngine;
+using Unity.Mathematics;
 using LibCSG;
-
+using EzySlice;
+using System.Collections;
 public class Slicing : MonoBehaviour
 {
-
+    public GameObject Marble;
     GameObject Sword;
+
     public float MoveSpeed;
     public float RotateSpeed;
     float CurRotation;
     float CutCount = 0;
 
     public Material MarbleMat;
+    TextureRegion Region;
+
+    public int MoveMode = 1;
+
+    //public Vector2 MousePos;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        Sword = GameObject.Find("Cube");
-        print(Sword.transform.localRotation.z);
-        print(Sword.transform.localRotation.z + 1 * (RotateSpeed / 100));
+        Sword = GameObject.Find("Sword");
 
         CurRotation = Sword.transform.rotation.z;
     }
@@ -26,9 +32,17 @@ public class Slicing : MonoBehaviour
     void Update()
     {
 
-        if (Input.GetKeyDown(KeyCode.F))
+        if (Input.GetKeyDown(KeyCode.F) || Input.GetMouseButtonDown(0))
         {
-            Slice();
+            StartCoroutine(Slice(Sword.transform.position, Sword.transform.right));
+        }
+
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            if (MoveMode == 1)
+                MoveMode = 2;
+            else
+                MoveMode = 1;
         }
 
         //GameObject.Find("Result2").transform.position = Sword.transform.position;
@@ -36,29 +50,49 @@ public class Slicing : MonoBehaviour
 
     private void FixedUpdate()
     {
-        float Horizontal = Input.GetAxis("Horizontal"); float Vertical = Input.GetAxis("Vertical"); float Rotation = Input.GetAxisRaw("Rotation");
-
-
-        if (Vertical != 0 && Horizontal != 0)
+        if (MoveMode == 1)
         {
-            Sword.transform.position += Vector3.up * Vertical * (MoveSpeed / 100) / 1.3f;
-            Sword.transform.position += Vector3.right * Horizontal * (MoveSpeed / 100) / 1.3f;
-            CurRotation += Rotation * RotateSpeed;
-            Sword.transform.rotation = Quaternion.Euler(0, 0, CurRotation);
+            float Horizontal = Input.GetAxis("Horizontal"); float Vertical = Input.GetAxis("Vertical"); float Rotation = Input.GetAxisRaw("Rotation");
+
+            if (Vertical != 0 && Horizontal != 0)
+            {
+                Sword.transform.position += Vector3.up * Vertical * (MoveSpeed / 100) / 1.3f;
+                Sword.transform.position += Vector3.right * Horizontal * (MoveSpeed / 100) / 1.3f;
+                CurRotation += Rotation * RotateSpeed;
+                Sword.transform.rotation = Quaternion.Euler(0, 0, CurRotation);
+            }
+            else
+            {
+                Sword.transform.position += Vector3.up * Vertical * (MoveSpeed / 100);
+                Sword.transform.position += Vector3.right * Horizontal * (MoveSpeed / 100);
+
+                CurRotation += Rotation * RotateSpeed;
+                Sword.transform.rotation = Quaternion.Euler(0, 0, CurRotation);
+            }
         }
         else
         {
-            Sword.transform.position += Vector3.up * Vertical * (MoveSpeed / 100);
-            Sword.transform.position += Vector3.right * Horizontal * (MoveSpeed / 100);
+            Vector3 MousePos = Input.mousePosition;
+            MousePos.z = Marble.transform.position.z - Camera.main.transform.position.z;
+            MousePos = Camera.main.ScreenToWorldPoint(MousePos);
 
-            CurRotation += Rotation * RotateSpeed;
-            Sword.transform.rotation =  Quaternion.Euler(0, 0, CurRotation);
+
+            if (Input.GetMouseButton(1))
+            {
+                Vector3 SwordDirection = MousePos - Sword.transform.position;
+                Sword.transform.right = SwordDirection;
+            }
+            else
+            {Sword.transform.position = MousePos;}
         }
+       
+
+        
 
     }
 
 
-    public void Slice()
+    public void SliceOld()
     {
         CutCount++;
 
@@ -135,5 +169,30 @@ public class Slicing : MonoBehaviour
         GameObject.Find($"SliceResult{CutCount}").AddComponent<MeshCollider>().convex = true;
         GameObject.Find($"SliceResult{CutCount}").AddComponent<Rigidbody>();
     }
+
+    public IEnumerator Slice(Vector3 SwordPos, Vector3 SwordDirection)
+    {
+        GameObject[] CutResults = Marble.SliceInstantiate(SwordPos, SwordDirection, Region, MarbleMat);
+        GameObject Debris;
+        float SliceDirection;
+
+        Destroy(Marble);
+        if (CutResults[0].GetComponent<Renderer>().bounds.extents.y > CutResults[1].GetComponent<Renderer>().bounds.extents.y || CutResults[0].GetComponent<Renderer>().bounds.extents.x > CutResults[1].GetComponent<Renderer>().bounds.extents.x)
+        { Marble = CutResults[0]; Debris = CutResults[1]; }
+        else {Marble = CutResults[1]; Debris = CutResults[0]; }
+
+        SliceDirection = Mathf.Sign(Sword.transform.position.x -Debris.transform.position.x);
+        Marble.AddComponent<MeshCollider>().convex = true;
+        Debris.AddComponent<MeshCollider>().convex = true;
+        Debris.AddComponent<Rigidbody>().AddForce(Vector3.up + Vector3.right * SliceDirection * 10, ForceMode.Impulse);
+        Marble.name = "Marble";
+        Debris.name = "Debris";
+        yield return new WaitForSeconds(2);
+        Destroy(Debris);
+    }
+
+
+
+
 
 }
