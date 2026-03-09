@@ -3,6 +3,8 @@ using Unity.Mathematics;
 using LibCSG;
 using EzySlice;
 using System.Collections;
+using System.Linq;
+
 public class Slicing : MonoBehaviour
 {
     public GameObject Marble;
@@ -34,7 +36,7 @@ public class Slicing : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.F) || Input.GetMouseButtonDown(0))
         {
-            StartCoroutine(Slice(Sword.transform.position, Sword.transform.right));
+            StartCoroutine(KatanaSlice(Sword.transform.position, Sword.transform.right));
         }
 
         if (Input.GetKeyDown(KeyCode.V))
@@ -170,29 +172,69 @@ public class Slicing : MonoBehaviour
         GameObject.Find($"SliceResult{CutCount}").AddComponent<Rigidbody>();
     }
 
-    public IEnumerator Slice(Vector3 SwordPos, Vector3 SwordDirection)
+    public IEnumerator KatanaSlice(Vector3 SwordPos, Vector3 SwordDirection)
     {
-        GameObject[] CutResults = Marble.SliceInstantiate(SwordPos, SwordDirection, Region, MarbleMat);
+        
+        GameObject[] CutResults = Marble.SliceInstantiate(SwordPos, SwordDirection, Region, MarbleMat); //Do the cut
         GameObject Debris;
         float SliceDirection;
 
-        Destroy(Marble);
-        if (CutResults[0].GetComponent<Renderer>().bounds.extents.y > CutResults[1].GetComponent<Renderer>().bounds.extents.y || CutResults[0].GetComponent<Renderer>().bounds.extents.x > CutResults[1].GetComponent<Renderer>().bounds.extents.x)
-        { Marble = CutResults[0]; Debris = CutResults[1]; }
-        else {Marble = CutResults[1]; Debris = CutResults[0]; }
+        if (CutResults == null) //If the cut is off the screen, break (Otherwise fully destroys model & breaks)
+        { yield break; }
 
-        SliceDirection = Mathf.Sign(Sword.transform.position.x -Debris.transform.position.x);
+        Destroy(Marble); //Remove obsolete Gameobject
+
+        if (CutResults[0].GetComponent<Renderer>().bounds.extents.y > CutResults[1].GetComponent<Renderer>().bounds.extents.y || CutResults[0].GetComponent<Renderer>().bounds.extents.x > CutResults[1].GetComponent<Renderer>().bounds.extents.x)
+        { Marble = CutResults[0]; Debris = CutResults[1]; } 
+        else {Marble = CutResults[1]; Debris = CutResults[0]; } // Checks which side is debris & and which is marble
+
+        SliceDirection = Mathf.Sign(Sword.transform.position.x -Debris.transform.position.x); //Determine which direction to fling debris
         Marble.AddComponent<MeshCollider>().convex = true;
         Debris.AddComponent<MeshCollider>().convex = true;
         Debris.AddComponent<Rigidbody>().AddForce(Vector3.up + Vector3.right * SliceDirection * 10, ForceMode.Impulse);
         Marble.name = "Marble";
         Debris.name = "Debris";
         yield return new WaitForSeconds(2);
-        Destroy(Debris);
+        Destroy(Debris); //Clean up debris
     }
 
 
+    public IEnumerator TantoCut(Vector3 SwordPos, Vector3 SwordDirection)
+    {
 
+        /*Plan
+
+        Tanto Slash creates a plane inside of the model
+        Maybe the slash glows?
+        If another slice meets one of the glowing cuts then create a new gameobject with the cuts being two faces and a third face created in script
+        So Create a triangle model using lines as a guide and place it in same space as cuts
+        Then perform csg opperation & take away triangle from the marble
+        Simple! Right????????????????????????????????????
+
+        Okay... Shit plan ^^^
+
+        Create a cylinder, centre on intersection point of two cuts
+        Then cut the cylinder with using the two cuts
+        Then csg remove the cylinder from the marble 
+        ---->>> WE NEED FIND ANOTHER CSG IMPLEMENTATION AHHHHHH
+
+        So we need to create planes using the mouse?
+        When you start holding down click, create start pos, then drag to end pos. 
+        Create new cube gameobject, maybe a prefab, set direction to mouse, pos to midpoint between start point and mouse, and scale to fill in the space
+
+        Need to make it so we keep the side that is closer to the other plane!
+        */
+
+
+        yield return new WaitForSeconds(2);
+    }
+
+    public IEnumerator CreateCircleSegment(GameObject Plane1, GameObject Plane2)
+    {
+
+
+        yield return new WaitForSeconds(2);
+    }
 
 
 }
