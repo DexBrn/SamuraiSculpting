@@ -8,6 +8,7 @@ using System.Linq;
 public class Slicing : MonoBehaviour
 {
     public GameObject Marble;
+    public GameObject SubtractionCylinder;
     GameObject Sword;
 
     public float MoveSpeed;
@@ -19,6 +20,9 @@ public class Slicing : MonoBehaviour
     TextureRegion Region;
 
     public int MoveMode = 1;
+
+    public int WeaponOn = 1; //1 Katana 2 Tanto 3 Naginata 4 Kama
+
 
     //public Vector2 MousePos;
 
@@ -34,10 +38,31 @@ public class Slicing : MonoBehaviour
     void Update()
     {
 
-        if (Input.GetKeyDown(KeyCode.F) || Input.GetMouseButtonDown(0))
+        if (WeaponOn == 1)
         {
-            StartCoroutine(KatanaSlice(Sword.transform.position, Sword.transform.right));
+            if (Input.GetKeyDown(KeyCode.F) || Input.GetMouseButtonDown(0))
+            {
+                StartCoroutine(KatanaSlice(Sword.transform.position, Sword.transform.right));
+            }
         }
+        if (WeaponOn == 2)
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                print("Slash Started");
+                //Start Point Here
+            }
+            if (Input.GetMouseButton(0))
+            {
+                print("Slash Continuing");
+                //End Point Here
+            }
+        }
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            StartCoroutine(TantoCut(Sword.transform.position, Sword.transform.right));
+        }
+
 
         if (Input.GetKeyDown(KeyCode.V))
         {
@@ -204,14 +229,6 @@ public class Slicing : MonoBehaviour
 
         /*Plan
 
-        Tanto Slash creates a plane inside of the model
-        Maybe the slash glows?
-        If another slice meets one of the glowing cuts then create a new gameobject with the cuts being two faces and a third face created in script
-        So Create a triangle model using lines as a guide and place it in same space as cuts
-        Then perform csg opperation & take away triangle from the marble
-        Simple! Right????????????????????????????????????
-
-        Okay... Shit plan ^^^
 
         Create a cylinder, centre on intersection point of two cuts
         Then cut the cylinder with using the two cuts
@@ -225,6 +242,13 @@ public class Slicing : MonoBehaviour
         Need to make it so we keep the side that is closer to the other plane!
         */
 
+        GameObject NewLivingCut = Instantiate(Sword);
+        NewLivingCut.transform.position = SwordPos;
+        NewLivingCut.AddComponent<TantoCutCross>().SubtractionCylinder = SubtractionCylinder;
+        NewLivingCut.name = "TantoCut";
+        NewLivingCut.GetComponent<BoxCollider>().enabled = true;
+        NewLivingCut.AddComponent<Rigidbody>().useGravity = false;
+        NewLivingCut.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
 
         yield return new WaitForSeconds(2);
     }

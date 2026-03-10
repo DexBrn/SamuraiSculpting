@@ -1017,8 +1017,8 @@ Transform:
   m_GameObject: {fileID: 1318932304}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 2.77, y: 1.98, z: -4.59}
-  m_LocalScale: {x: 2, y: 1.701696, z: 2}
+  m_LocalPosition: {x: 8.7, y: 4.02, z: -4.59}
+  m_LocalScale: {x: 5.6062, y: 4.7700243, z: 5.6062}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -1052,11 +1052,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3af472507b4d11f4293a308f2d2d1a83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Marble: {fileID: 1318932304}
+  Marble: {fileID: 1715364453}
+  SubtractionCylinder: {fileID: 1318932304}
   MoveSpeed: 5
   RotateSpeed: 3
   MarbleMat: {fileID: 2100000, guid: 9f5b20e0f7a2e204a9c6371ecb4ca947, type: 2}
   MoveMode: 2
+  WeaponOn: 1
 --- !u!4 &1551380614
 Transform:
   m_ObjectHideFlags: 0
