@@ -4,6 +4,7 @@ using LibCSG;
 using EzySlice;
 using System.Collections;
 using System.Linq;
+using UnityEditor;
 
 public class Slicing : MonoBehaviour
 {
@@ -23,10 +24,10 @@ public class Slicing : MonoBehaviour
 
     public int WeaponOn = 1; //1 Katana 2 Tanto 3 Naginata 4 Kama
 
+    Vector3 TantoStartPoint;
+    Vector3 TantoEndPoint;
+    GameObject NewTantoCut;
 
-    //public Vector2 MousePos;
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         Sword = GameObject.Find("Sword");
@@ -34,7 +35,7 @@ public class Slicing : MonoBehaviour
         CurRotation = Sword.transform.rotation.z;
     }
 
-    // Update is called once per frame
+
     void Update()
     {
 
@@ -50,12 +51,40 @@ public class Slicing : MonoBehaviour
             if (Input.GetMouseButtonDown(0))
             {
                 print("Slash Started");
-                //Start Point Here
+                TantoStartPoint = Sword.transform.position;
+                GameObject Temp = Instantiate(Marble);
+                Temp.transform.position = TantoStartPoint;
+                Temp.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+                NewTantoCut = Instantiate(Marble);
+                NewTantoCut.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
             }
             if (Input.GetMouseButton(0))
             {
-                print("Slash Continuing");
-                //End Point Here
+                TantoEndPoint = Sword.transform.position;
+                //print($"Midpoint = {(TantoStartPoint + TantoEndPoint) / 2}");
+                NewTantoCut.transform.position = (TantoStartPoint + TantoEndPoint) / 2;
+
+                Vector3 MousePos = Input.mousePosition;
+                MousePos.z = Marble.transform.position.z - Camera.main.transform.position.z;
+                MousePos = Camera.main.ScreenToWorldPoint(MousePos);
+
+                Vector3 Direction = MousePos - NewTantoCut.transform.position;
+                Quaternion LookRotation = Quaternion.LookRotation(Direction);
+                //print(LookRotation.eulerAngles);
+
+
+                NewTantoCut.transform.rotation = Quaternion.Euler(0, LookRotation.eulerAngles.y + 90, LookRotation.eulerAngles.x);
+
+                //NewTantoCut.transform.rotation = quaternion.LookRotation(Vector3.forward, mPos);
+                float CutSize = Mathf.Abs(TantoStartPoint.x - TantoEndPoint.x) + Mathf.Abs(TantoStartPoint.y - TantoEndPoint.y);
+                print(CutSize);
+                print($"X -- {TantoStartPoint.x} :: {TantoEndPoint.x} :: {TantoStartPoint.x - TantoEndPoint.x}");
+                print($"Y -- {TantoStartPoint.y} :: {TantoEndPoint.y} ::{TantoStartPoint.y - TantoEndPoint.y}");
+
+                NewTantoCut.transform.localScale = new Vector3(CutSize, 0.1f, 0.1f);
+
+                //print(NewTantoCut.transform.eulerAngles.z);
+
             }
         }
         if (Input.GetKeyDown(KeyCode.C))

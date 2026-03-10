@@ -609,7 +609,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 473990390}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -1058,7 +1058,7 @@ MonoBehaviour:
   RotateSpeed: 3
   MarbleMat: {fileID: 2100000, guid: 9f5b20e0f7a2e204a9c6371ecb4ca947, type: 2}
   MoveMode: 2
-  WeaponOn: 1
+  WeaponOn: 2
 --- !u!4 &1551380614
 Transform:
   m_ObjectHideFlags: 0
