@@ -56,7 +56,7 @@ public class Slicing : MonoBehaviour
                 Temp.transform.position = TantoStartPoint;
                 Temp.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
                 NewTantoCut = Instantiate(Marble);
-                NewTantoCut.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+                NewTantoCut.transform.localScale = new Vector3(0.1f, 0.05f, 0.1f);
             }
             if (Input.GetMouseButton(0))
             {
@@ -78,10 +78,19 @@ public class Slicing : MonoBehaviour
                 //NewTantoCut.transform.rotation = quaternion.LookRotation(Vector3.forward, mPos);
                 float CutSize = Mathf.Abs(TantoStartPoint.x - TantoEndPoint.x) + Mathf.Abs(TantoStartPoint.y - TantoEndPoint.y);
                 print(CutSize);
-                print($"X -- {TantoStartPoint.x} :: {TantoEndPoint.x} :: {TantoStartPoint.x - TantoEndPoint.x}");
-                print($"Y -- {TantoStartPoint.y} :: {TantoEndPoint.y} ::{TantoStartPoint.y - TantoEndPoint.y}");
 
-                NewTantoCut.transform.localScale = new Vector3(CutSize, 0.1f, 0.1f);
+                if (Mathf.Abs(NewTantoCut.transform.rotation.eulerAngles.z) < 45)
+                { CutSize = Mathf.Lerp(Mathf.Abs(TantoStartPoint.x - TantoEndPoint.x), Mathf.Sqrt(Mathf.Pow(TantoStartPoint.x - TantoEndPoint.x, 2) + Mathf.Pow(TantoStartPoint.y - TantoEndPoint.y, 2)), Mathf.Abs(NewTantoCut.transform.eulerAngles.z) / 45); print($"Hi1: {Mathf.Abs(NewTantoCut.transform.eulerAngles.z)}"); }
+                else
+                { CutSize = Mathf.Lerp(Mathf.Abs(TantoStartPoint.y - TantoEndPoint.y), Mathf.Sqrt(Mathf.Pow(TantoStartPoint.x - TantoEndPoint.x, 2) + Mathf.Pow(TantoStartPoint.y - TantoEndPoint.y, 2)), (Mathf.Abs(NewTantoCut.transform.eulerAngles.z) / 45) / 2); print($"Hi2: {Mathf.Abs(NewTantoCut.transform.eulerAngles.z)}"); }
+
+                print($"Py cut = {CutSize}");
+
+
+                print($"X -- {TantoStartPoint.x} :: {TantoEndPoint.x} :: {TantoStartPoint.x - TantoEndPoint.x} :: {(TantoStartPoint.x - TantoEndPoint.x) / 2}");
+                print($"Y -- {TantoStartPoint.y} :: {TantoEndPoint.y} ::{TantoStartPoint.y - TantoEndPoint.y} :: {(TantoStartPoint.y - TantoEndPoint.y) / 2}");
+
+                NewTantoCut.transform.localScale = new Vector3(CutSize, 0.05f, 0.1f);
 
                 //print(NewTantoCut.transform.eulerAngles.z);
 
