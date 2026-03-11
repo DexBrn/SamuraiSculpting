@@ -55,50 +55,23 @@ public class Slicing : MonoBehaviour
                 GameObject Temp = Instantiate(Marble);
                 Temp.transform.position = TantoStartPoint;
                 Temp.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-                NewTantoCut = Instantiate(Marble);
+                NewTantoCut = Instantiate(Sword);
+                NewTantoCut.GetComponent<MeshRenderer>().enabled = true;
                 NewTantoCut.transform.localScale = new Vector3(0.1f, 0.05f, 0.1f);
+                NewTantoCut.name = "TantoCut";
+                NewTantoCut.GetComponent<BoxCollider>().enabled = true;
+                NewTantoCut.AddComponent<Rigidbody>().useGravity = false;
+                NewTantoCut.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
             }
             if (Input.GetMouseButton(0))
             {
-                TantoEndPoint = Sword.transform.position;
-                //print($"Midpoint = {(TantoStartPoint + TantoEndPoint) / 2}");
-                NewTantoCut.transform.position = (TantoStartPoint + TantoEndPoint) / 2;
-
-                Vector3 MousePos = Input.mousePosition;
-                MousePos.z = Marble.transform.position.z - Camera.main.transform.position.z;
-                MousePos = Camera.main.ScreenToWorldPoint(MousePos);
-
-                Vector3 Direction = MousePos - NewTantoCut.transform.position;
-                Quaternion LookRotation = Quaternion.LookRotation(Direction);
-                //print(LookRotation.eulerAngles);
-
-
-                NewTantoCut.transform.rotation = Quaternion.Euler(0, LookRotation.eulerAngles.y + 90, LookRotation.eulerAngles.x);
-
-                //NewTantoCut.transform.rotation = quaternion.LookRotation(Vector3.forward, mPos);
-                float CutSize = Mathf.Abs(TantoStartPoint.x - TantoEndPoint.x) + Mathf.Abs(TantoStartPoint.y - TantoEndPoint.y);
-                print(CutSize);
-
-                if (Mathf.Abs(NewTantoCut.transform.rotation.eulerAngles.z) < 45)
-                { CutSize = Mathf.Lerp(Mathf.Abs(TantoStartPoint.x - TantoEndPoint.x), Mathf.Sqrt(Mathf.Pow(TantoStartPoint.x - TantoEndPoint.x, 2) + Mathf.Pow(TantoStartPoint.y - TantoEndPoint.y, 2)), Mathf.Abs(NewTantoCut.transform.eulerAngles.z) / 45); print($"Hi1: {Mathf.Abs(NewTantoCut.transform.eulerAngles.z)}"); }
-                else
-                { CutSize = Mathf.Lerp(Mathf.Abs(TantoStartPoint.y - TantoEndPoint.y), Mathf.Sqrt(Mathf.Pow(TantoStartPoint.x - TantoEndPoint.x, 2) + Mathf.Pow(TantoStartPoint.y - TantoEndPoint.y, 2)), (Mathf.Abs(NewTantoCut.transform.eulerAngles.z) / 45) / 2); print($"Hi2: {Mathf.Abs(NewTantoCut.transform.eulerAngles.z)}"); }
-
-                print($"Py cut = {CutSize}");
-
-
-                print($"X -- {TantoStartPoint.x} :: {TantoEndPoint.x} :: {TantoStartPoint.x - TantoEndPoint.x} :: {(TantoStartPoint.x - TantoEndPoint.x) / 2}");
-                print($"Y -- {TantoStartPoint.y} :: {TantoEndPoint.y} ::{TantoStartPoint.y - TantoEndPoint.y} :: {(TantoStartPoint.y - TantoEndPoint.y) / 2}");
-
-                NewTantoCut.transform.localScale = new Vector3(CutSize, 0.05f, 0.1f);
-
-                //print(NewTantoCut.transform.eulerAngles.z);
-
+                TantoControl();
             }
-        }
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            StartCoroutine(TantoCut(Sword.transform.position, Sword.transform.right));
+            if (Input.GetMouseButtonUp(0))
+            {
+                NewTantoCut.AddComponent<TantoCutCross>().SubtractionCylinder = SubtractionCylinder;
+                NewTantoCut.AddComponent<TantoCutCross>().StartPoint = TantoStartPoint;
+            }
         }
 
 
@@ -262,40 +235,34 @@ public class Slicing : MonoBehaviour
     }
 
 
-    public IEnumerator TantoCut(Vector3 SwordPos, Vector3 SwordDirection)
+
+    void TantoControl()
     {
+        TantoEndPoint = Sword.transform.position;
+        NewTantoCut.transform.position = (TantoStartPoint + TantoEndPoint) / 2;
 
-        /*Plan
+        Vector3 MousePos = Input.mousePosition;
+        MousePos.z = Marble.transform.position.z - Camera.main.transform.position.z;
+        MousePos = Camera.main.ScreenToWorldPoint(MousePos);
 
+        Vector3 Direction = MousePos - NewTantoCut.transform.position;
+        if (Direction != Vector3.zero)
+        {
+            Quaternion LookRotation = Quaternion.LookRotation(Direction);
 
-        Create a cylinder, centre on intersection point of two cuts
-        Then cut the cylinder with using the two cuts
-        Then csg remove the cylinder from the marble 
-        ---->>> WE NEED FIND ANOTHER CSG IMPLEMENTATION AHHHHHH
+            NewTantoCut.transform.rotation = Quaternion.Euler(0, LookRotation.eulerAngles.y + 90, LookRotation.eulerAngles.x);
 
-        So we need to create planes using the mouse?
-        When you start holding down click, create start pos, then drag to end pos. 
-        Create new cube gameobject, maybe a prefab, set direction to mouse, pos to midpoint between start point and mouse, and scale to fill in the space
+            float CutSize = Mathf.Abs(TantoStartPoint.x - TantoEndPoint.x) + Mathf.Abs(TantoStartPoint.y - TantoEndPoint.y);
 
-        Need to make it so we keep the side that is closer to the other plane!
-        */
-
-        GameObject NewLivingCut = Instantiate(Sword);
-        NewLivingCut.transform.position = SwordPos;
-        NewLivingCut.AddComponent<TantoCutCross>().SubtractionCylinder = SubtractionCylinder;
-        NewLivingCut.name = "TantoCut";
-        NewLivingCut.GetComponent<BoxCollider>().enabled = true;
-        NewLivingCut.AddComponent<Rigidbody>().useGravity = false;
-        NewLivingCut.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-
-        yield return new WaitForSeconds(2);
-    }
-
-    public IEnumerator CreateCircleSegment(GameObject Plane1, GameObject Plane2)
-    {
+            if (Mathf.Abs(NewTantoCut.transform.rotation.eulerAngles.z) < 45)
+            { CutSize = Mathf.Lerp(Mathf.Abs(TantoStartPoint.x - TantoEndPoint.x), Mathf.Sqrt(Mathf.Pow(TantoStartPoint.x - TantoEndPoint.x, 2) + Mathf.Pow(TantoStartPoint.y - TantoEndPoint.y, 2)), Mathf.Abs(NewTantoCut.transform.eulerAngles.z) / 45); }
+            else
+            { CutSize = Mathf.Lerp(Mathf.Abs(TantoStartPoint.y - TantoEndPoint.y), Mathf.Sqrt(Mathf.Pow(TantoStartPoint.x - TantoEndPoint.x, 2) + Mathf.Pow(TantoStartPoint.y - TantoEndPoint.y, 2)), (Mathf.Abs(NewTantoCut.transform.eulerAngles.z) / 45) / 2); }
+            NewTantoCut.transform.localScale = new Vector3(CutSize, 0.005f, 2.1f);
+        }
+        
 
 
-        yield return new WaitForSeconds(2);
     }
 
 
