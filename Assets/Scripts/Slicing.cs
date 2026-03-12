@@ -50,7 +50,6 @@ public class Slicing : MonoBehaviour
         {
             if (Input.GetMouseButtonDown(0))
             {
-                print("Slash Started");
                 TantoStartPoint = Sword.transform.position;
                 GameObject Temp = Instantiate(Marble);
                 Temp.transform.position = TantoStartPoint;
@@ -70,7 +69,7 @@ public class Slicing : MonoBehaviour
             if (Input.GetMouseButtonUp(0))
             {
                 NewTantoCut.AddComponent<TantoCutCross>().SubtractionCylinder = SubtractionCylinder;
-                NewTantoCut.AddComponent<TantoCutCross>().StartPoint = TantoStartPoint;
+                NewTantoCut.GetComponent<TantoCutCross>().StartPoint = TantoStartPoint;
             }
         }
 
@@ -258,7 +257,7 @@ public class Slicing : MonoBehaviour
             { CutSize = Mathf.Lerp(Mathf.Abs(TantoStartPoint.x - TantoEndPoint.x), Mathf.Sqrt(Mathf.Pow(TantoStartPoint.x - TantoEndPoint.x, 2) + Mathf.Pow(TantoStartPoint.y - TantoEndPoint.y, 2)), Mathf.Abs(NewTantoCut.transform.eulerAngles.z) / 45); }
             else
             { CutSize = Mathf.Lerp(Mathf.Abs(TantoStartPoint.y - TantoEndPoint.y), Mathf.Sqrt(Mathf.Pow(TantoStartPoint.x - TantoEndPoint.x, 2) + Mathf.Pow(TantoStartPoint.y - TantoEndPoint.y, 2)), (Mathf.Abs(NewTantoCut.transform.eulerAngles.z) / 45) / 2); }
-            NewTantoCut.transform.localScale = new Vector3(CutSize, 0.005f, 2.1f);
+            NewTantoCut.transform.localScale = new Vector3(CutSize, 0.005f, 0.01f);
         }
         
 
