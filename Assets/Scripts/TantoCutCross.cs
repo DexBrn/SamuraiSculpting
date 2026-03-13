@@ -3,6 +3,7 @@ using UnityEngine;
 using static UnityEngine.Rendering.DebugUI;
 using UnityEngine.UIElements;
 using EzySlice;
+using UnityEngine.TestTools;
 
 public class TantoCutCross : MonoBehaviour
 {
@@ -30,63 +31,64 @@ public class TantoCutCross : MonoBehaviour
     void CombineCut(Collision collision)
     {
 
-        
-
         Vector3 Middlepoint = (StartPoint + OtherStartPoint) / 2;
-        float Distance = 9999;
-        //print($"{StartPoint} :: {OtherStartPoint} :: {Middlepoint}");
 
+        float Distance = 9999;
         GameObject NewCylinder = Instantiate(SubtractionCylinder);
         
 
+
+        //Find best contact point between two cuts
         for (int i = 0; i < collision.contacts.Length; i++)
         {
-            //print(collision.GetContact(i).point);
             if (Vector3.Distance(Middlepoint, collision.GetContact(i).point) < Distance)
             { Distance = Vector3.Distance(Middlepoint, collision.GetContact(i).point); BestCollisionPoint = collision.GetContact(i).point; }
         }
-        //print(Distance);
-        //print(BestCollisionPoint);
 
-
+        //Create new cylinder to be cut into a segment and then taken away from the marble
         NewCylinder.transform.position = BestCollisionPoint;
         NewCylinder.name = "SubtractionCylinder";
         GameObject[] CutResults1 = NewCylinder.SliceInstantiate(transform.position, transform.up);
 
         Distance = 9999;
 
+        //Cut the cylinder using the first slice object, then find the side closer the midpoint
         for (int i = 0; i < CutResults1.Length; i++)
         {
-            Transform Tim = (Instantiate(transform));
-            Tim.position = Middlepoint;
             var Vertices = CutResults1[i].GetComponent<MeshFilter>().mesh.vertices;
-            //print($"THIS :: The Point: {transform.TransformPoint(Vertices[0])}, the point: {transform.position} ");
-            //print($"THAT :: The Point: {collision.transform.TransformPoint(Vertices[0])}, the point: {collision.transform.position} ");
-            //print($"MID :: The Point: {Tim.TransformPoint(Vertices[0])}, the MidPoint: {Middlepoint} ");
 
             Vector3 Average = new Vector3(0, 0, 0);
             for (int y = 0; y < Vertices.Length; y++)
-            {
-                Average += transform.TransformPoint(Vertices[y]);
-            }
+                Average += CutResults1[i].transform.TransformPoint(Vertices[y]);
             
             Average = Average / Vertices.Length;
-            print("Average: " + Average);
-            print("Distance before compare: " + Distance);
+
             if (Vector3.Distance(Middlepoint, Average) < Distance)
-            { Distance = Vector3.Distance(Middlepoint, Average); print("Distance: " + Distance); CloserSlice = CutResults1[i]; }
-            Destroy(Tim.gameObject);   
+            { Distance = Vector3.Distance(Middlepoint, Average); CloserSlice = CutResults1[i]; }
         }
+
         Distance = 9999;
-        //print(CloserSlice);
+
+        //Cut the slice again using the other slice object to get the segment, then check which one is closer to the midpoint
         GameObject[] CutResults2 = CloserSlice.SliceInstantiate(collision.transform.position, collision.transform.up);
         for (int i = 0; i < CutResults2.Length; i++)
         {
+            var Vertices = CutResults2[i].GetComponent<MeshFilter>().mesh.vertices;
+
+            Vector3 Average = new Vector3(0, 0, 0);
+            for (int y = 0; y < Vertices.Length; y++)
+                Average += CutResults2[i].transform.TransformPoint(Vertices[y]);
+
+            Average = Average / Vertices.Length;
+
             if (Vector3.Distance(Middlepoint, CutResults2[i].transform.position) < Distance)
-            { Distance = Vector3.Distance(Middlepoint, CutResults2[i].transform.position); CloserSlice = CutResults2[i]; }
+            { Distance = Vector3.Distance(Middlepoint, Average); CloserSlice = CutResults2[i]; }
         }
         
         GameObject FinalSegment = CloserSlice;
+        FinalSegment = Instantiate(FinalSegment);
+        Destroy(CutResults1[0]); Destroy(CutResults1[1]); Destroy(CutResults2[0]); Destroy(CutResults2[1]); //Destroy(NewCylinder); Destroy(this);
+        NewCylinder.transform.localScale = new Vector3(0, 0, 0);
         print(FinalSegment.name);
 
 

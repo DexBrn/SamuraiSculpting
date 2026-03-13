@@ -143,6 +143,8 @@ public class CSGBrushOperation
         Plane plane_a = new Plane(vertices_a[0], vertices_a[1], vertices_a[2]);
         float distance_tolerance = 0.3f;
 
+
+            /*
         for (int i = 0; i < 3; i++) {
             bool is_point_over = Vector3.Dot(plane_a.normal, vertices_b[i]) > plane_a.distance;
             if (plane_a.GetDistanceToPoint(vertices_b[i]) < distance_tolerance) {
@@ -173,6 +175,7 @@ public class CSGBrushOperation
                 under_count++;
             }
         }
+            */
         // If all points under or over the plane, there is no intersection.
         if (over_count == 3 || under_count == 3) {
             return;
