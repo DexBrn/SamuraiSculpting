@@ -21,8 +21,7 @@ public class CSGUsageExample : MonoBehaviour
         composite.AddComponent<MeshFilter>().sharedMesh = result.mesh;
         result.materials.Add(material);
         composite.AddComponent<MeshRenderer>().sharedMaterials = result.materials.ToArray();
-        composite.name = Operation.ToString() + " Object";
-        Temp = composite;   
+        composite.name = Operation.ToString() + " Object"; 
     }
 
 

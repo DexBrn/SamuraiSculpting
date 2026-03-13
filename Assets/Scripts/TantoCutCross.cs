@@ -48,7 +48,7 @@ public class TantoCutCross : MonoBehaviour
         //Create new cylinder to be cut into a segment and then taken away from the marble
         NewCylinder.transform.position = BestCollisionPoint;
         NewCylinder.name = "SubtractionCylinder";
-        GameObject[] CutResults1 = NewCylinder.SliceInstantiate(transform.position, transform.up);
+        GameObject[] CutResults1 = NewCylinder.SliceInstantiate(transform.position, transform.up,  Region, GameObject.Find("Marble").GetComponent<MeshRenderer>().material);
 
         Distance = 9999;
 
@@ -69,8 +69,10 @@ public class TantoCutCross : MonoBehaviour
 
         Distance = 9999;
 
+        print(GameObject.Find("Marble").GetComponent<MeshRenderer>().material);
+
         //Cut the slice again using the other slice object to get the segment, then check which one is closer to the midpoint
-        GameObject[] CutResults2 = CloserSlice.SliceInstantiate(collision.transform.position, collision.transform.up);
+        GameObject[] CutResults2 = CloserSlice.SliceInstantiate(collision.transform.position, collision.transform.up, Region, GameObject.Find("Marble").GetComponent<MeshRenderer>().material);
         for (int i = 0; i < CutResults2.Length; i++)
         {
             var Vertices = CutResults2[i].GetComponent<MeshFilter>().mesh.vertices;
@@ -91,17 +93,38 @@ public class TantoCutCross : MonoBehaviour
         NewCylinder.transform.localScale = new Vector3(0, 0, 0);
         print(FinalSegment.name);
 
+        GameObject Marble = GameObject.Find("Marble");
 
 
+        Model result = CSG.Perform(CSG.BooleanOp.Subtraction, Marble, FinalSegment);
+        var composite = new GameObject();
+        composite.AddComponent<MeshFilter>().sharedMesh = result.mesh;
+        result.materials.Add(Marble.GetComponent<MeshRenderer>().material);
+        composite.AddComponent<MeshRenderer>().sharedMaterials = result.materials.ToArray();
 
+        GameObject.Find("ScriptHolder").GetComponent<Slicing>().Marble = composite;
 
+        Destroy(Marble);
+        composite.name = "Marble";
 
-
-        /*
+        Destroy(FinalSegment);
+        Destroy(collision.gameObject);
         Destroy(NewCylinder);
-        Destroy(CutResults1[0]);
-        Destroy(CutResults1[1]);
-        Destroy(CutResults2[0]);
-        */
+        Destroy(gameObject);
+
     }
+
+
+
+    /*
+    public void Perform()
+    {
+        Model result = CSG.Perform(Operation, lhs, rhs);
+        var composite = new GameObject();
+        composite.AddComponent<MeshFilter>().sharedMesh = result.mesh;
+        result.materials.Add(material);
+        composite.AddComponent<MeshRenderer>().sharedMaterials = result.materials.ToArray();
+        composite.name = Operation.ToString() + " Object";
+    }
+    */
 }

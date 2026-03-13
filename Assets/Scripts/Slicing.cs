@@ -1,6 +1,5 @@
 using UnityEngine;
 using Unity.Mathematics;
-using LibCSG;
 using EzySlice;
 using System.Collections;
 using System.Linq;
@@ -128,7 +127,7 @@ public class Slicing : MonoBehaviour
 
     }
 
-
+    /*
     public void SliceOld()
     {
         CutCount++;
@@ -206,6 +205,7 @@ public class Slicing : MonoBehaviour
         GameObject.Find($"SliceResult{CutCount}").AddComponent<MeshCollider>().convex = true;
         GameObject.Find($"SliceResult{CutCount}").AddComponent<Rigidbody>();
     }
+    */
 
     public IEnumerator KatanaSlice(Vector3 SwordPos, Vector3 SwordDirection)
     {
@@ -257,7 +257,7 @@ public class Slicing : MonoBehaviour
             { CutSize = Mathf.Lerp(Mathf.Abs(TantoStartPoint.x - TantoEndPoint.x), Mathf.Sqrt(Mathf.Pow(TantoStartPoint.x - TantoEndPoint.x, 2) + Mathf.Pow(TantoStartPoint.y - TantoEndPoint.y, 2)), Mathf.Abs(NewTantoCut.transform.eulerAngles.z) / 45); }
             else
             { CutSize = Mathf.Lerp(Mathf.Abs(TantoStartPoint.y - TantoEndPoint.y), Mathf.Sqrt(Mathf.Pow(TantoStartPoint.x - TantoEndPoint.x, 2) + Mathf.Pow(TantoStartPoint.y - TantoEndPoint.y, 2)), (Mathf.Abs(NewTantoCut.transform.eulerAngles.z) / 45) / 2); }
-            NewTantoCut.transform.localScale = new Vector3(CutSize, 0.005f, 0.01f);
+            NewTantoCut.transform.localScale = new Vector3(CutSize, 0.005f, 2.1f);
         }
         
 
