@@ -4,6 +4,8 @@ using static UnityEngine.Rendering.DebugUI;
 using UnityEngine.UIElements;
 using EzySlice;
 using UnityEngine.TestTools;
+using JetBrains.Annotations;
+using UnityEditor;
 
 public class TantoCutCross : MonoBehaviour
 {
@@ -89,25 +91,41 @@ public class TantoCutCross : MonoBehaviour
         
         GameObject FinalSegment = CloserSlice;
         FinalSegment = Instantiate(FinalSegment);
-        Destroy(CutResults1[0]); Destroy(CutResults1[1]); Destroy(CutResults2[0]); Destroy(CutResults2[1]); //Destroy(NewCylinder); Destroy(this);
+        //Destroy(CutResults1[0]); Destroy(CutResults1[1]); Destroy(CutResults2[0]); Destroy(CutResults2[1]); //Destroy(NewCylinder); Destroy(this);
+        CutResults1[0].GetComponent<MeshRenderer>().enabled = false; CutResults1[1].GetComponent<MeshRenderer>().enabled = false; CutResults2[0].GetComponent<MeshRenderer>().enabled = false; CutResults2[1].GetComponent<MeshRenderer>().enabled = false;
+
+
         NewCylinder.transform.localScale = new Vector3(0, 0, 0);
         print(FinalSegment.name);
 
         GameObject Marble = GameObject.Find("Marble");
 
+        MeshUtility.Optimize(Marble.GetComponent<MeshFilter>().sharedMesh);
+        MeshUtility.Optimize(FinalSegment.GetComponent<MeshFilter>().sharedMesh);
 
         Model result = CSG.Perform(CSG.BooleanOp.Subtraction, Marble, FinalSegment);
+        Model InverseResult = CSG.Perform(CSG.BooleanOp.Subtraction, FinalSegment, Marble);
+
         var composite = new GameObject();
         composite.AddComponent<MeshFilter>().sharedMesh = result.mesh;
         result.materials.Add(Marble.GetComponent<MeshRenderer>().material);
         composite.AddComponent<MeshRenderer>().sharedMaterials = result.materials.ToArray();
+
+        var InverseComposite = new GameObject();
+        InverseComposite.AddComponent<MeshFilter>().sharedMesh = result.mesh;
+        InverseResult.materials.Add(Marble.GetComponent<MeshRenderer>().material);
+        InverseComposite.AddComponent<MeshRenderer>().sharedMaterials = result.materials.ToArray();
+
+        InverseComposite.name = "InverseOpperation";
+        InverseComposite.GetComponent<MeshRenderer>().enabled = false;
 
         GameObject.Find("ScriptHolder").GetComponent<Slicing>().Marble = composite;
 
         Destroy(Marble);
         composite.name = "Marble";
 
-        Destroy(FinalSegment);
+        //Destroy(FinalSegment);
+        FinalSegment.GetComponent<MeshRenderer>().enabled = false;
         Destroy(collision.gameObject);
         Destroy(NewCylinder);
         Destroy(gameObject);
@@ -127,4 +145,8 @@ public class TantoCutCross : MonoBehaviour
         composite.name = Operation.ToString() + " Object";
     }
     */
+
+
+    
+
 }

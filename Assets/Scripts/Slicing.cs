@@ -23,6 +23,8 @@ public class Slicing : MonoBehaviour
 
     public int WeaponOn = 1; //1 Katana 2 Tanto 3 Naginata 4 Kama
 
+
+    Vector3 MarbleStartPos;
     Vector3 TantoStartPoint;
     Vector3 TantoEndPoint;
     GameObject NewTantoCut;
@@ -32,6 +34,7 @@ public class Slicing : MonoBehaviour
         Sword = GameObject.Find("Sword");
 
         CurRotation = Sword.transform.rotation.z;
+        MarbleStartPos = Marble.transform.position;
     }
 
 
@@ -40,6 +43,7 @@ public class Slicing : MonoBehaviour
 
         if (WeaponOn == 1)
         {
+            Sword.GetComponent<MeshRenderer>().enabled = true;
             if (Input.GetKeyDown(KeyCode.F) || Input.GetMouseButtonDown(0))
             {
                 StartCoroutine(KatanaSlice(Sword.transform.position, Sword.transform.right));
@@ -47,12 +51,13 @@ public class Slicing : MonoBehaviour
         }
         if (WeaponOn == 2)
         {
+            Sword.GetComponent<MeshRenderer>().enabled = false;
             if (Input.GetMouseButtonDown(0))
             {
                 TantoStartPoint = Sword.transform.position;
-                GameObject Temp = Instantiate(Marble);
-                Temp.transform.position = TantoStartPoint;
-                Temp.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+                //GameObject Temp = Instantiate(Marble);
+                //Temp.transform.position = TantoStartPoint;
+                //Temp.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
                 NewTantoCut = Instantiate(Sword);
                 NewTantoCut.GetComponent<MeshRenderer>().enabled = true;
                 NewTantoCut.transform.localScale = new Vector3(0.1f, 0.05f, 0.1f);
@@ -60,6 +65,7 @@ public class Slicing : MonoBehaviour
                 NewTantoCut.GetComponent<BoxCollider>().enabled = true;
                 NewTantoCut.AddComponent<Rigidbody>().useGravity = false;
                 NewTantoCut.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+                NewTantoCut.GetComponent<MeshRenderer>().material = GameObject.Find("TestTarget").GetComponent<MeshRenderer>().material;
             }
             if (Input.GetMouseButton(0))
             {
@@ -109,7 +115,7 @@ public class Slicing : MonoBehaviour
         else
         {
             Vector3 MousePos = Input.mousePosition;
-            MousePos.z = Marble.transform.position.z - Camera.main.transform.position.z;
+            MousePos.z = MarbleStartPos.z - Camera.main.transform.position.z;
             MousePos = Camera.main.ScreenToWorldPoint(MousePos);
 
 
@@ -241,7 +247,7 @@ public class Slicing : MonoBehaviour
         NewTantoCut.transform.position = (TantoStartPoint + TantoEndPoint) / 2;
 
         Vector3 MousePos = Input.mousePosition;
-        MousePos.z = Marble.transform.position.z - Camera.main.transform.position.z;
+        MousePos.z = MarbleStartPos.z - Camera.main.transform.position.z;
         MousePos = Camera.main.ScreenToWorldPoint(MousePos);
 
         Vector3 Direction = MousePos - NewTantoCut.transform.position;

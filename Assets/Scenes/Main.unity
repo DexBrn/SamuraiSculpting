@@ -430,7 +430,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 4e6728126ef7bf843a8c7f2024625e21, type: 2}
     - target: {fileID: 919132149155446097, guid: 43cba2b81f105804aaf3e687fbbcdb04, type: 3}
       propertyPath: m_Name
-      value: 3d Platformer Character
+      value: TestTarget
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 43cba2b81f105804aaf3e687fbbcdb04, type: 3}
       propertyPath: m_Layer
