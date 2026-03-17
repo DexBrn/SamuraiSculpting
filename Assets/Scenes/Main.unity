@@ -1058,7 +1058,7 @@ MonoBehaviour:
   RotateSpeed: 3
   MarbleMat: {fileID: 2100000, guid: 9f5b20e0f7a2e204a9c6371ecb4ca947, type: 2}
   MoveMode: 2
-  WeaponOn: 2
+  WeaponOn: 1
 --- !u!4 &1551380614
 Transform:
   m_ObjectHideFlags: 0
