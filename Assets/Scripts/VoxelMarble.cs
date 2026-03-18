@@ -189,7 +189,7 @@ public class VoxelMarble : MonoBehaviour
             for (int y = 0; y < MDims.y; y++)
                 for (int z = 0; z < MDims.z; z++)
                 {
-                    Vector3 Pos = new Vector3(x, y, x); // - new Vector3(MDims.x, MDims.y, MDims.z) / 2;
+                    Vector3 Pos = new Vector3(x, y, z); // - new Vector3(MDims.x, MDims.y, MDims.z) / 2;
                     //print($" {x} {y} {z} POS ::: {Pos}  " );
                     //print(Vector3.Distance(Pos, Centre));
 
