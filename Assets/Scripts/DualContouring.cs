@@ -1,8 +1,6 @@
 using System.Collections.Generic;
-using System.Diagnostics;
-using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
-using static UnityEngine.EventSystems.EventTrigger;
+
 
 public class DualContouring : MonoBehaviour
 {
@@ -14,27 +12,24 @@ public class DualContouring : MonoBehaviour
     MeshFilter MeshFilter;
     Mesh Mesh;
 
-    public GameObject TempBall;
 
     void Start()
     {
 
         Density = new float[MDims.x, MDims.y, MDims.z];
         MeshFilter = GetComponent<MeshFilter>();
-
-        /*
-        for (int x = 0; x < MDims.x; x++)
-            for (int y = 0; y < MDims.y; y++)
-                for (int z = 0; z < MDims.z; z++)
-                    Density[x, y, z] = 1;
-        */
-        //GenerateMesh();
+        //GenerateSphere();
+        GenerateCuboid();
+        GenerateMesh();
     }
 
     void Update()
     {
         
-
+        if (Input.GetKeyDown(KeyCode.J))
+        {
+            
+        }
 
 
     }
@@ -58,6 +53,21 @@ public class DualContouring : MonoBehaviour
 
     }
 
+    void GenerateCuboid()
+    {
+        
+        for (int x = 0; x < MDims.x; x++)
+            for (int y = 0; y < MDims.y; y++)
+                for (int z = 0; z < MDims.z; z++)
+                {
+                    bool OnBoundary = (x == 0 || x == MDims.x - 1 ||
+                        y == 0 || y == MDims.y - 1 ||
+                        z == 0 || z == MDims.z - 1);
+
+                    Density[x, y, z] = OnBoundary ? -1f : 1f; 
+                }
+    }
+
 
     void GenerateMesh()
     {
@@ -68,7 +78,7 @@ public class DualContouring : MonoBehaviour
         int[,,] VertexIndices = new int[MDims.x, MDims.y, MDims.z];
 
 
-        //Generate Vertices
+        // Generate one vertex per cell that contains a surface crossing
         for (int x = 0; x < MDims.x -1; x++)
             for (int y = 0; y < MDims.y-1; y++)
                 for (int z = 0; z < MDims.z - 1; z++)
@@ -86,9 +96,9 @@ public class DualContouring : MonoBehaviour
 
 
         //Build Faces
-        for (int x = 0; x < MDims.x - 2; x++)
-            for (int y = 0; y < MDims.y - 2; y++)
-                for (int z = 0; z < MDims.z - 2; z++)
+        for (int x = 1; x < MDims.x - 2; x++)
+            for (int y = 1; y < MDims.y - 2; y++)
+                for (int z = 1; z < MDims.z - 2; z++)
                 {
                     BuildQuads(x, y, z, VertexIndices, Triangles);
 
@@ -150,25 +160,116 @@ public class DualContouring : MonoBehaviour
                 Vector3 Point1 = new Vector3(x,y,z) + Corners[a];
                 Vector3 Point2 = new Vector3(x,y,z) + Corners[b];
 
-                float t = (IsoLevel - da) / (db/da);
+                float t = (IsoLevel - da) / (db-da);
                 Vector3 Point = Vector3.Lerp(Point1, Point2, t);
 
                 Points.Add(Point);
 
                 //Approximate normal
-                //Vector3 Normal = 
+                Vector3 Normal = CalculateNormal(Point);
+                Normals.Add(Normal);
             }
         }
+        if (Points.Count == 0)
+        {
+            Vertex = Vector3.zero;
+            return false;
+        }
 
-        Vertex = new Vector3(x, y, z);
+        Vertex = SolveQEF(Points, Normals);
         return true;
     }
 
 
     void BuildQuads(int x, int y,int z, int[,,] Indices, List<int> Tris)
     {
+        // X face
+        TryQuad(Indices[x, y, z], Indices[x, y, z + 1], Indices[x, y + 1, z + 1], Indices[x, y + 1, z], Tris);
+
+        // Y face
+        TryQuad(Indices[x, y, z], Indices[x + 1, y, z], Indices[x + 1, y, z + 1], Indices[x, y, z + 1], Tris);
+
+        // Z face
+        TryQuad(Indices[x, y, z], Indices[x + 1, y, z], Indices[x + 1, y + 1, z], Indices[x, y + 1, z], Tris);
 
     }
+
+    bool HasSignChange(int x0, int y0, int z0, int x1, int y1, int z1) 
+    {
+        float d0 = Density[x0, y0, z0];
+        float d1 = Density[x1, y1, z1];
+        return (d0 < IsoLevel) != (d1 < IsoLevel);
+
+    }
+
+
+    void TryQuad(int a, int b, int c, int d, List<int> Tris)
+    {
+        if (a < 0 || b < 0 || c < 0 || d < 0) return;
+
+        Tris.Add(a);
+        Tris.Add(b);
+        Tris.Add(c);
+
+        Tris.Add(a);
+        Tris.Add(c);
+        Tris.Add(d);
+    }
+
+
+
+    Vector3 CalculateNormal(Vector3 Pos)
+    {
+        float d = 0.01f;
+
+        float dx = Sample(Pos + Vector3.right * d) - Sample(Pos - Vector3.right * d);
+        float dy = Sample(Pos + Vector3.up * d) - Sample(Pos - Vector3.up * d);
+        float dz = Sample(Pos + Vector3.forward * d) - Sample(Pos - Vector3.forward * d);
+
+        return new Vector3(dx, dy, dz).normalized;
+    }
+
+    float Sample(Vector3 Pos)
+    {
+        int x = Mathf.Clamp((int)Pos.x, 0, MDims.x - 1);
+        int y = Mathf.Clamp((int)Pos.y, 0, MDims.y - 1);
+        int z = Mathf.Clamp((int)Pos.z, 0, MDims.z - 1);
+
+        return Density[x, y, z];
+    }
+
+    Vector3 SolveQEF(List<Vector3> Points, List<Vector3> Normals)
+    {
+        Vector3 Avg = Vector3.zero;
+
+        for (int i = 0; i < Points.Count; i++)
+            Avg += Points[i];
+
+
+        Avg /=Points.Count;
+
+        // Simple approximation: move towards planes
+        for (int iter = 0; iter < 5; iter++)
+        {
+            for (int i = 0; i < Points.Count; ++i)
+            {
+                Vector3 Point = Points[i];
+                Vector3 Normal = Normals[i];
+
+                float Distance = Vector3.Dot(Normal, Avg - Point);
+                Avg -= Normal * Distance;
+            }
+        }
+
+
+        return Avg;
+
+
+    }
+
+
+
+
 
 
 
