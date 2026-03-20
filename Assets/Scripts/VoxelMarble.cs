@@ -7,6 +7,7 @@ using static UnityEditor.Searcher.SearcherWindow.Alignment;
 using static UnityEditor.PlayerSettings;
 using Unity.VisualScripting;
 using System.Net.Http.Headers;
+using static UnityEngine.EventSystems.EventTrigger;
 
 
 public class VoxelMarble : MonoBehaviour
@@ -19,6 +20,7 @@ public class VoxelMarble : MonoBehaviour
     MeshFilter MeshFilter;
 
     public GameObject TempBall;
+    public float Radius;
 
     void Start()
     {
@@ -40,8 +42,13 @@ public class VoxelMarble : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.G))
         {
-            CarveSphere(TempBall.transform.position, 5);
+            CarveSphere(TempBall.transform.position, 15);
         }
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+            Slice(TempBall.transform.position, TempBall.transform.position + new Vector3(15, -5, 0));
+        }
+
     }
 
     void GenerateMesh()
@@ -189,7 +196,7 @@ public class VoxelMarble : MonoBehaviour
             for (int y = 0; y < MDims.y; y++)
                 for (int z = 0; z < MDims.z; z++)
                 {
-                    Vector3 Pos = new Vector3(x, y, x); // - new Vector3(MDims.x, MDims.y, MDims.z) / 2;
+                    Vector3 Pos = new Vector3(x, y, z); // - new Vector3(MDims.x, MDims.y, MDims.z) / 2;
                     //print($" {x} {y} {z} POS ::: {Pos}  " );
                     //print(Vector3.Distance(Pos, Centre));
 
@@ -201,7 +208,41 @@ public class VoxelMarble : MonoBehaviour
 
     }
 
+    public void Slice(Vector3 StartPos, Vector3 EndPos)
+    {
 
+        StartPos = transform.InverseTransformPoint(StartPos);
+        EndPos = transform.InverseTransformPoint(EndPos);
+
+        print($"Start POS :: {StartPos}");
+        print($"End POS :: {EndPos}");
+
+        for (float e =  0; e < 100;  e++)
+            for (int x = 0; x < MDims.x; x++)
+                for (int y = 0; y < MDims.y; y++)
+                    for (int z = 0; z < MDims.z; z++)
+                    {
+                        Vector3 Pos = new Vector3(x, y, z); 
+
+                    
+
+                        if (Vector3.Distance(Pos, Vector3.Lerp(StartPos, EndPos, e/100)) < 1.5f)
+                        {
+                            for (int j = 0; j < MDims.z; j++) //Cut whole Z off
+                                if (StartPos.y > MDims.y / 2)
+                                    for (float k = y; k < MDims.y; k++) //If the sword is on the top half cut all of the top off
+                                        Voxels[x, Mathf.RoundToInt(k), j] = false;
+                                else
+                                    for (float k = y; k >= 0; k--) //If the sword is on the bottom half cut all of the bottom off
+                                        Voxels[x, Mathf.RoundToInt(k), j] = false;
+                        }
+
+                    }
+        GenerateMesh();
+
+
+
+    }
 
 
 }
