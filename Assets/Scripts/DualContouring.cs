@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 
 public class DualContouring : MonoBehaviour
 {
@@ -235,10 +236,39 @@ public class DualContouring : MonoBehaviour
 
     float Sample(Vector3 Pos)
     {
-        int x = Mathf.Clamp(Mathf.RoundToInt(Pos.x), 0, MDims.x - 1);
-        int y = Mathf.Clamp(Mathf.RoundToInt(Pos.y), 0, MDims.y - 1);
-        int z = Mathf.Clamp(Mathf.RoundToInt(Pos.z), 0, MDims.z - 1);
-        return Density[x, y, z];
+        int x0 = Mathf.Clamp(Mathf.FloorToInt(Pos.x), 0, MDims.x - 1);
+        int y0 = Mathf.Clamp(Mathf.FloorToInt(Pos.y), 0, MDims.y - 1);
+        int z0 = Mathf.Clamp(Mathf.FloorToInt(Pos.z), 0, MDims.z - 1);
+
+        int x1 = Mathf.Clamp(x0 + 1, 0, MDims.x - 1);
+        int y1 = Mathf.Clamp(y0 + 1, 0, MDims.y - 1);
+        int z1 = Mathf.Clamp(z0 + 1, 0, MDims.z - 1);
+
+        float tx = Pos.x - x0;
+        float ty = Pos.y - y0;
+        float tz = Pos.z - z0;
+
+        float c000 = Density[x0, y0, z0];
+        float c100 = Density[x1, y0, z0];
+        float c010 = Density[x0, y1, z0];
+        float c110 = Density[x1, y1, z0];
+
+        float c001 = Density[x0, y0, z1];
+        float c101 = Density[x1, y0, z1];
+        float c011 = Density[x0, y1, z1];
+        float c111 = Density[x1, y1, z1];
+
+        float c00 = Mathf.Lerp(c000, c100, tx);
+        float c10 = Mathf.Lerp(c010, c110, tx);
+        float c01 = Mathf.Lerp(c001, c101, tx);
+        float c11 = Mathf.Lerp(c011, c111, tx);
+
+        float c0 = Mathf.Lerp(c00, c10, ty);
+        float c1 = Mathf.Lerp(c01, c11, ty);
+
+        return Mathf.Lerp(c0, c1, tz);
+
+
     }
 
     Vector3 SolveQEF(List<Vector3> Points, List<Vector3> Normals)
@@ -284,34 +314,52 @@ public class DualContouring : MonoBehaviour
         StartPos = transform.InverseTransformPoint(StartPos);
         EndPos = transform.InverseTransformPoint(EndPos);
 
-        print($"Start POS :: {StartPos}");
-        print($"End POS :: {EndPos}");
+        float PositiveSide = 0f;
+        float NegativeSide = 0f;
+        
 
-        for (float e = 0; e < 100; e++)
-            for (int x = 0; x < MDims.x; x++)
-                for (int y = 0; y < MDims.y; y++)
-                    //for (int z = 0; z < MDims.z; z++)
+        Vector3 Direction = (EndPos - StartPos).normalized;
+        Vector3 PlaneNormal = Vector3.Cross(Direction, Camera.main.transform.forward).normalized;
+
+        UnityEngine.Plane Plane = new UnityEngine.Plane(PlaneNormal, StartPos);
+
+       
+
+        for (int x = 0; x < MDims.x; x++)
+            for (int y = 0; y < MDims.y; y++)
+                for (int z = 0; z < MDims.z; z++)
+                {
+                    float d = Density[x,y,z];
+
+                    if (d > IsoLevel)
                     {
                         Vector3 Pos = new Vector3(x, y, MDims.z / 2);
 
-                        //float Distance = Vector3.Distance(StartPos, Pos);
-                        //print($"Pos: {Pos} :: {Distance}");
-                        //Density[x,y,z] = Mathf.Min(Density[x,y,z], Distance);
+                        float PlaneDistance = Plane.GetDistanceToPoint(Pos);
 
-                        
-                        if (Vector3.Distance(Pos, Vector3.Lerp(StartPos, EndPos, e / 100)) < 2f)
-                        {
-                            for (int j = 0; j < MDims.z; j++) //Cut whole Z off
-                                if (StartPos.y > MDims.y / 2)
-                                    for (float k = y; k < MDims.y; k++) //If the sword is on the top half cut all of the top off
-                                        Density[x, Mathf.RoundToInt(k), j] = 0;
-                                else
-                                    for (float k = y; k >= 0; k--) //If the sword is on the bottom half cut all of the bottom off
-                                        Density[x, Mathf.RoundToInt(k), j] = 0;
-                        }
-                        
-
+                        if (PlaneDistance > 0f) PositiveSide++;
+                        else NegativeSide++;
                     }
+                }
+
+        for (int x = 0; x < MDims.x; x++)
+            for (int y = 0; y < MDims.y; y++)
+                for (int z = 0; z < MDims.z; z++)
+                {
+                    Vector3 Pos = new Vector3(x, y, MDims.z / 2);
+
+                    float PlaneDistance = Plane.GetDistanceToPoint(Pos);
+
+                    if (PositiveSide > NegativeSide)
+                        Density[x, y, z ] = Mathf.Min(Density[x,y,z], PlaneDistance);
+                    else
+                        Density[x, y, z] = Mathf.Min(Density[x, y, z], -PlaneDistance);
+
+                    
+                }
+
+
+
         GenerateMesh();
 
 
