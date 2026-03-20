@@ -46,7 +46,7 @@ public class Slicing : MonoBehaviour
             Sword.GetComponent<MeshRenderer>().enabled = true;
             if (Input.GetKeyDown(KeyCode.F) || Input.GetMouseButtonDown(0))
             {
-                StartCoroutine(KatanaSlice(Sword.transform.position, Sword.transform.right));
+                //StartCoroutine(KatanaSlice(Sword.transform.position, Sword.transform.right));
             }
         }
         if (WeaponOn == 2)
