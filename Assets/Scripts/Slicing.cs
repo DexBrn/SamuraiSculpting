@@ -4,12 +4,15 @@ using EzySlice;
 using System.Collections;
 using System.Linq;
 using UnityEditor;
+using System.Net;
 
 public class Slicing : MonoBehaviour
 {
     public GameObject Marble;
     public GameObject SubtractionCylinder;
     GameObject Sword;
+
+    DualContouring DCScript;
 
     public float MoveSpeed;
     public float RotateSpeed;
@@ -35,6 +38,7 @@ public class Slicing : MonoBehaviour
 
         CurRotation = Sword.transform.rotation.z;
         MarbleStartPos = Marble.transform.position;
+        DCScript = Marble.GetComponent<DualContouring>();
     }
 
 
@@ -73,8 +77,9 @@ public class Slicing : MonoBehaviour
             }
             if (Input.GetMouseButtonUp(0))
             {
-                NewTantoCut.AddComponent<TantoCutCross>().SubtractionCylinder = SubtractionCylinder;
-                NewTantoCut.GetComponent<TantoCutCross>().StartPoint = TantoStartPoint;
+                //NewTantoCut.AddComponent<TantoCutCross>().SubtractionCylinder = SubtractionCylinder;
+                //NewTantoCut.GetComponent<TantoCutCross>().StartPoint = TantoStartPoint;
+                DCScript.ApplyTantoCut(NewTantoCut);
             }
         }
 
@@ -133,85 +138,7 @@ public class Slicing : MonoBehaviour
 
     }
 
-    /*
-    public void SliceOld()
-    {
-        CutCount++;
-
-        GameObject SliceResult = new GameObject();
-        SliceResult.name = $"SliceResult{CutCount}";
-        SliceResult.transform.localScale = new Vector3(1, 1, 1);
-        SliceResult.transform.position = Sword.transform.position;
-        SliceResult.AddComponent<MeshFilter>();
-        SliceResult.AddComponent<MeshRenderer>();
-        SliceResult.GetComponent<MeshRenderer>().material = MarbleMat;
-        SliceResult.AddComponent<DebrisCleanup>();
-
-        // Create the CSGBrushOperation
-        CSGBrushOperation CSGOp = new CSGBrushOperation();
-        CSGBrushOperation CSGOp2 = new CSGBrushOperation();
-        // Create the brush to contain the result of the operation
-        // Give a GameObject allow to have the mesh result link with the GameObject Transform link
-        // if you don't give a GameObject the Brush create a new GameObject
-        CSGBrush cube_sub_cylinder = new CSGBrush(GameObject.Find("Marble"));
-        CSGBrush cube_sub_cylinder2 = new CSGBrush(GameObject.Find($"SliceResult{CutCount}"));
-
-
-        // Create the Brush for the cube
-        CSGBrush MarbleBrush = new CSGBrush(GameObject.Find("Marble"));
-        // Set-up the mesh in the Brush
-        MarbleBrush.build_from_mesh(GameObject.Find("Marble").GetComponent<MeshFilter>().mesh);
-
-        // Create the Brush for the cylinder
-        CSGBrush LeftSideBrush = new CSGBrush(GameObject.Find("LeftSide"));
-        // Set-up the mesh in the Brush
-        LeftSideBrush.build_from_mesh(GameObject.Find("LeftSide").GetComponent<MeshFilter>().mesh);
-
-        // Create the Brush for the cylinder
-        CSGBrush RightSideBrush = new CSGBrush(GameObject.Find("RightSide"));
-        // Set-up the mesh in the Brush
-        RightSideBrush.build_from_mesh(GameObject.Find("RightSide").GetComponent<MeshFilter>().mesh);
-
-        // Do the operation subtration between the cube and the cylinder 
-        CSGOp.merge_brushes(Operation.OPERATION_SUBTRACTION, MarbleBrush, LeftSideBrush, ref cube_sub_cylinder);
-        CSGOp2.merge_brushes(Operation.OPERATION_SUBTRACTION, MarbleBrush, RightSideBrush, ref cube_sub_cylinder2);
-
-        GameObject.Find("Marble").GetComponent<MeshFilter>().mesh.Clear(); //Was 'Result'
-        Destroy(GameObject.Find("Marble").GetComponent<MeshCollider>());
-        GameObject.Find($"SliceResult{CutCount}").GetComponent<MeshFilter>().mesh.Clear();
-
-        //Destroy(GameObject.Find("Marble"));
-        //Destroy(GameObject.Find("Cube"));
-
-
-
-
-
-        // Put the mesh result in the mesh give in parameter if you don't give a mesh he return a new mesh with the result
-
-        
-        
-
-        cube_sub_cylinder.getMesh(GameObject.Find("Marble").GetComponent<MeshFilter>().mesh); //Was 'Result'
-        cube_sub_cylinder2.getMesh(GameObject.Find($"SliceResult{CutCount}").GetComponent<MeshFilter>().mesh);
-
-        print($"{GameObject.Find("Marble").GetComponent<MeshFilter>().mesh.vertexCount}");
-        print($"{GameObject.Find($"SliceResult{CutCount}").GetComponent<MeshFilter>().mesh.vertexCount}");
-
-        if (GameObject.Find($"SliceResult{CutCount}").GetComponent<MeshFilter>().mesh.vertexCount > GameObject.Find("Marble").GetComponent<MeshFilter>().mesh.vertexCount)
-        {
-            cube_sub_cylinder.getMesh(GameObject.Find($"SliceResult{CutCount}").GetComponent<MeshFilter>().mesh);
-            cube_sub_cylinder2.getMesh(GameObject.Find("Marble").GetComponent<MeshFilter>().mesh); //Was 'Result'
-            
-        }
-        
-
-        GameObject.Find("Marble").AddComponent<MeshCollider>().convex = true; //Was 'Result'
-        GameObject.Find("Marble").transform.localScale = new Vector3(1, 1, 1);
-        GameObject.Find($"SliceResult{CutCount}").AddComponent<MeshCollider>().convex = true;
-        GameObject.Find($"SliceResult{CutCount}").AddComponent<Rigidbody>();
-    }
-    */
+   
 
     public IEnumerator KatanaSlice(Vector3 SwordPos, Vector3 SwordDirection)
     {
@@ -240,35 +167,18 @@ public class Slicing : MonoBehaviour
     }
 
 
-
     void TantoControl()
     {
         TantoEndPoint = Sword.transform.position;
         NewTantoCut.transform.position = (TantoStartPoint + TantoEndPoint) / 2;
+        NewTantoCut.transform.position = new Vector3(NewTantoCut.transform.position.x, NewTantoCut.transform.position.y, -5.2f);
+        float Length = Vector3.Distance(TantoStartPoint, TantoEndPoint);
+        Vector3 Direction = (TantoEndPoint - TantoStartPoint).normalized;
+        if (Direction !=  Vector3.zero)
+            NewTantoCut.transform.rotation = Quaternion.LookRotation(Direction);
 
-        Vector3 MousePos = Input.mousePosition;
-        MousePos.z = MarbleStartPos.z - Camera.main.transform.position.z;
-        MousePos = Camera.main.ScreenToWorldPoint(MousePos);
-
-        Vector3 Direction = MousePos - NewTantoCut.transform.position;
-        if (Direction != Vector3.zero)
-        {
-            Quaternion LookRotation = Quaternion.LookRotation(Direction);
-
-            NewTantoCut.transform.rotation = Quaternion.Euler(0, LookRotation.eulerAngles.y + 90, LookRotation.eulerAngles.x);
-
-            float CutSize = Mathf.Abs(TantoStartPoint.x - TantoEndPoint.x) + Mathf.Abs(TantoStartPoint.y - TantoEndPoint.y);
-
-            if (Mathf.Abs(NewTantoCut.transform.rotation.eulerAngles.z) < 45)
-            { CutSize = Mathf.Lerp(Mathf.Abs(TantoStartPoint.x - TantoEndPoint.x), Mathf.Sqrt(Mathf.Pow(TantoStartPoint.x - TantoEndPoint.x, 2) + Mathf.Pow(TantoStartPoint.y - TantoEndPoint.y, 2)), Mathf.Abs(NewTantoCut.transform.eulerAngles.z) / 45); }
-            else
-            { CutSize = Mathf.Lerp(Mathf.Abs(TantoStartPoint.y - TantoEndPoint.y), Mathf.Sqrt(Mathf.Pow(TantoStartPoint.x - TantoEndPoint.x, 2) + Mathf.Pow(TantoStartPoint.y - TantoEndPoint.y, 2)), (Mathf.Abs(NewTantoCut.transform.eulerAngles.z) / 45) / 2); }
-            NewTantoCut.transform.localScale = new Vector3(CutSize, 0.005f, 2.1f);
-        }
-        
+        NewTantoCut.transform.localScale = new Vector3(2.1f, 0.005f, Length);
 
 
     }
-
-
 }

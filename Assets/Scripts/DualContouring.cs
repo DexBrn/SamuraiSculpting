@@ -368,6 +368,42 @@ public class DualContouring : MonoBehaviour
 
 
 
+    float BoxSDF(Vector3 Pos, Vector3 Centre, Vector3 HalfSize, Quaternion Rotation)
+    {
+        Vector3 Local = Quaternion.Inverse(Rotation) * (Pos-Centre);
+
+        Vector3 Dimensions = new Vector3(
+            Mathf.Abs(Local.x) - HalfSize.x,
+            Mathf.Abs(Local.y) - HalfSize.y,
+            Mathf.Abs(Local.z) - HalfSize.z
+            );
+
+        float Outside = Vector3.Max(Dimensions, Vector3.zero).magnitude;
+        float Inside = Mathf.Min(Mathf.Max(Dimensions.x, Mathf.Max(Dimensions.y, Dimensions.z)), 0);
+
+        return Inside + Outside;
+    }
+
+    public void ApplyTantoCut(GameObject NewTantoCut)
+    {
+        Vector3 Centre = transform.InverseTransformPoint(NewTantoCut.transform.position);
+        Quaternion Rotation = Quaternion.Inverse(transform.rotation) * NewTantoCut.transform.rotation;
+
+        Vector3 HalfSize = NewTantoCut.transform.localScale * 0.5f;
+
+        for (int x = 0; x < MDims.x; x++)
+            for (int y = 0; y < MDims.y; y++)
+                for (int z = 0; z < MDims.z; z++)
+                {
+                    Vector3 Pos = new Vector3(x, y, z);
+
+                    float BladeDist = BoxSDF(Pos, Centre, HalfSize, Rotation);
+                    //print(BladeDist);
+                    Density[x, y, z] = Mathf.Min(Density[x,y,z], BladeDist);
+                }
+        Destroy(NewTantoCut);
+        GenerateMesh();
+    }
 
 
 
