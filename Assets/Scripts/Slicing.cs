@@ -79,7 +79,8 @@ public class Slicing : MonoBehaviour
             {
                 //NewTantoCut.AddComponent<TantoCutCross>().SubtractionCylinder = SubtractionCylinder;
                 //NewTantoCut.GetComponent<TantoCutCross>().StartPoint = TantoStartPoint;
-                DCScript.ApplyTantoCut(NewTantoCut);
+                DCScript.ApplyTantoCut(TantoStartPoint, TantoEndPoint);
+                //DCScript.ApplyBladeCut(NewTantoCut);
             }
         }
 
@@ -177,7 +178,7 @@ public class Slicing : MonoBehaviour
         if (Direction !=  Vector3.zero)
             NewTantoCut.transform.rotation = Quaternion.LookRotation(Direction);
 
-        NewTantoCut.transform.localScale = new Vector3(2.1f, 0.005f, Length);
+        NewTantoCut.transform.localScale = new Vector3(2.1f, 0.005f, Length+0.01f);
 
 
     }

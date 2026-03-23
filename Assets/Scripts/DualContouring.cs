@@ -38,23 +38,26 @@ public class DualContouring : MonoBehaviour
 
     void GenerateCuboid()
     {
-        Vector3 centre = new Vector3(MDims.x, MDims.y, MDims.z) * 0.5f;
         Vector3 halfSize = new Vector3(MDims.x, MDims.y, MDims.z) * 0.3f;
 
         for (int x = 0; x < MDims.x; x++)
             for (int y = 0; y < MDims.y; y++)
                 for (int z = 0; z < MDims.z; z++)
                 {
-                    Vector3 pos = new Vector3(x, y, z);
-                    Vector3 p = pos - centre;
+                    Vector3 pos = GetVoxelPosition(x, y, z);
 
-                    float dx = Mathf.Abs(p.x) - halfSize.x;
-                    float dy = Mathf.Abs(p.y) - halfSize.y;
-                    float dz = Mathf.Abs(p.z) - halfSize.z;
+                    Vector3 absPos = new Vector3(
+                        Mathf.Abs(pos.x),
+                        Mathf.Abs(pos.y),
+                        Mathf.Abs(pos.z)
+                    );
 
-                    float maxDist = Mathf.Max(dx, Mathf.Max(dy, dz));
-                    //Positive inside, neg outside
-                    Density[x, y, z] = -maxDist;
+                    Vector3 d = absPos - halfSize;
+
+                    float outside = Vector3.Max(d, Vector3.zero).magnitude;
+                    float inside = Mathf.Min(Mathf.Max(d.x, Mathf.Max(d.y, d.z)), 0);
+
+                    Density[x, y, z] = -(inside + outside);
                 }
     }
 
@@ -158,7 +161,7 @@ public class DualContouring : MonoBehaviour
             return false;
         }
 
-        Vertex = SolveQEF(Points, Normals);
+        Vertex = SolveQEF(Points, Normals, x, y, z);
         return true;
     }
 
@@ -271,23 +274,64 @@ public class DualContouring : MonoBehaviour
 
     }
 
-    Vector3 SolveQEF(List<Vector3> Points, List<Vector3> Normals)
+    Vector3 SolveQEF(List<Vector3> Points, List<Vector3> Normals, int CellX, int CellY, int CellZ)
     {
-        Vector3 Avg = Vector3.zero;
+        Vector3 MassPoint = Vector3.zero;
         for (int i = 0; i < Points.Count; i++)
-            Avg += Points[i];
-        Avg /= Points.Count;
+            MassPoint += Points[i];
+        MassPoint /= Points.Count;
 
-        for (int iter = 0; iter < 5; iter++)
+        float ATA00 = 0, ATA01 = 0, ATA02 = 0;
+        float ATA11 = 0, ATA12 = 0, ATA22 = 0;
+        float ATb0 = 0, ATb1 = 0, ATb2 = 0;
+
+        for (int i = 0; i < Points.Count; i++)
         {
-            for (int i = 0; i < Points.Count; i++)
-            {
-                float Distance = Vector3.Dot(Normals[i], Avg - Points[i]);
-                Avg -= Normals[i] * Distance;
-            }
+            Vector3 N = Normals[i];
+            Vector3 P = Points[i] - MassPoint;
+
+            ATA00 += N.x * N.x; ATA01 += N.x * N.y; ATA02 += N.x * N.z;
+            ATA11 += N.y * N.y; ATA12 += N.y * N.z;
+            ATA22 += N.z * N.z;
+
+            float B = Vector3.Dot(N, P);
+            ATb0 += N.x * B;
+            ATb1 += N.y * B;
+            ATb2 += N.z * B;
         }
 
-        return Avg;
+        float Det = ATA00 * (ATA11 * ATA22 - ATA12 * ATA12)
+                   - ATA01 * (ATA01 * ATA22 - ATA12 * ATA02)
+                   + ATA02 * (ATA01 * ATA12 - ATA11 * ATA02);
+
+        Vector3 Result;
+        if (Mathf.Abs(Det) < 1e-4f)
+        {
+            Result = MassPoint;
+        }
+        else
+        {
+            float InvDet = 1f / Det;
+            Vector3 Offset;
+            Offset.x = InvDet * (ATb0 * (ATA11 * ATA22 - ATA12 * ATA12)
+                               + ATb1 * (ATA02 * ATA12 - ATA01 * ATA22)
+                               + ATb2 * (ATA01 * ATA12 - ATA11 * ATA02));
+            Offset.y = InvDet * (ATb0 * (ATA12 * ATA02 - ATA01 * ATA22)
+                               + ATb1 * (ATA00 * ATA22 - ATA02 * ATA02)
+                               + ATb2 * (ATA01 * ATA02 - ATA00 * ATA12));
+            Offset.z = InvDet * (ATb0 * (ATA01 * ATA12 - ATA02 * ATA11)
+                               + ATb1 * (ATA02 * ATA01 - ATA00 * ATA12)
+                               + ATb2 * (ATA00 * ATA11 - ATA01 * ATA01));
+
+            Result = MassPoint + Offset;
+        }
+
+        // Clamp strictly inside the cell to prevent spikes
+        Result.x = Mathf.Clamp(Result.x, CellX, CellX + 1f);
+        Result.y = Mathf.Clamp(Result.y, CellY, CellY + 1f);
+        Result.z = Mathf.Clamp(Result.z, CellZ, CellZ + 1f);
+
+        return Result;
     }
 
     static readonly Vector3Int[] Corners = new Vector3Int[]
@@ -305,7 +349,14 @@ public class DualContouring : MonoBehaviour
         {0,4},{1,5},{2,6},{3,7}
     };
 
-
+    Vector3 GetVoxelPosition(int x, int y, int z)
+    {
+        return new Vector3(
+            x - MDims.x * 0.5f,
+            y - MDims.y * 0.5f,
+            z - MDims.z * 0.5f
+        );
+    }
 
 
     void Slice(Vector3 StartPos, Vector3 EndPos)
@@ -357,61 +408,52 @@ public class DualContouring : MonoBehaviour
 
                     
                 }
-
-
-
         GenerateMesh();
-
-
-
     }
 
-
-
-    float BoxSDF(Vector3 Pos, Vector3 Centre, Vector3 HalfSize, Quaternion Rotation)
+    public void ApplyTantoCut(Vector3 StartPos, Vector3 EndPos, float BladeThickness = 0.5f)
     {
-        Vector3 Local = Quaternion.Inverse(Rotation) * (Pos-Centre);
+        Vector3 VoxelStart = transform.InverseTransformPoint(StartPos);
+        Vector3 VoxelEnd = transform.InverseTransformPoint(EndPos);
 
-        Vector3 Dimensions = new Vector3(
-            Mathf.Abs(Local.x) - HalfSize.x,
-            Mathf.Abs(Local.y) - HalfSize.y,
-            Mathf.Abs(Local.z) - HalfSize.z
-            );
+        Vector3 SliceDirection = (VoxelEnd - VoxelStart).normalized;
+        float SliceLength = Vector3.Distance(VoxelStart, VoxelEnd);
 
-        float Outside = Vector3.Max(Dimensions, Vector3.zero).magnitude;
-        float Inside = Mathf.Min(Mathf.Max(Dimensions.x, Mathf.Max(Dimensions.y, Dimensions.z)), 0);
+        Vector3 CamForwardLocal = transform.InverseTransformDirection(Camera.main.transform.forward);
+        Vector3 PlaneNormal = Vector3.Cross(SliceDirection, CamForwardLocal).normalized;
 
-        return Inside + Outside;
-    }
-
-    public void ApplyTantoCut(GameObject NewTantoCut)
-    {
-        Vector3 Centre = transform.InverseTransformPoint(NewTantoCut.transform.position);
-        Quaternion Rotation = Quaternion.Inverse(transform.rotation) * NewTantoCut.transform.rotation;
-
-        Vector3 HalfSize = NewTantoCut.transform.localScale * 0.5f;
+        UnityEngine.Plane CuttingPlane = new UnityEngine.Plane(PlaneNormal, VoxelStart);
 
         for (int x = 0; x < MDims.x; x++)
             for (int y = 0; y < MDims.y; y++)
                 for (int z = 0; z < MDims.z; z++)
                 {
-                    Vector3 Pos = new Vector3(x, y, z);
+                    Vector3 VoxelCentre = new Vector3(x + 0.5f, y + 0.5f, z + 0.5f);
 
-                    float BladeDist = BoxSDF(Pos, Centre, HalfSize, Rotation);
-                    //print(BladeDist);
-                    Density[x, y, z] = Mathf.Min(Density[x,y,z], BladeDist);
+                    float Projection = Vector3.Dot(VoxelCentre - VoxelStart, SliceDirection);
+                    if (Projection < 0f || Projection > SliceLength)
+                        continue;
+
+                    // Find the minimum distance from the plane to any of the 8 voxel corners
+                    float MinDist = float.MaxValue;
+                    for (int dx = 0; dx <= 1; dx++)
+                        for (int dy = 0; dy <= 1; dy++)
+                            for (int dz = 0; dz <= 1; dz++)
+                            {
+                                Vector3 Corner = new Vector3(x + dx, y + dy, z + dz);
+                                float Dist = Mathf.Abs(CuttingPlane.GetDistanceToPoint(Corner));
+                                if (Dist < MinDist) MinDist = Dist;
+                            }
+
+                    if (MinDist > BladeThickness)
+                        continue;
+
+                    Density[x, y, z] = -100f;
                 }
-        Destroy(NewTantoCut);
+
+        Destroy(GameObject.Find("TantoCut"));
         GenerateMesh();
     }
-
-
-
-
-
-
-
-
 
 
 

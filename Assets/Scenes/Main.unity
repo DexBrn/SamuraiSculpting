@@ -313,13 +313,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: -0.00008726013, w: 1}
   m_LocalPosition: {x: 0, y: 2.139, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -0.01}
 --- !u!114 &330585547
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -425,6 +425,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 43cba2b81f105804aaf3e687fbbcdb04, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 43cba2b81f105804aaf3e687fbbcdb04, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 4e6728126ef7bf843a8c7f2024625e21, type: 2}
@@ -435,6 +439,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 43cba2b81f105804aaf3e687fbbcdb04, type: 3}
       propertyPath: m_Layer
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 43cba2b81f105804aaf3e687fbbcdb04, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1038,7 +1046,7 @@ GameObject:
   - component: {fileID: 1351679693}
   - component: {fileID: 1351679698}
   m_Layer: 0
-  m_Name: Result?
+  m_Name: Marble
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1301,13 +1309,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3af472507b4d11f4293a308f2d2d1a83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Marble: {fileID: 1715364453}
+  Marble: {fileID: 1351679692}
   SubtractionCylinder: {fileID: 1318932304}
   MoveSpeed: 5
   RotateSpeed: 3
   MarbleMat: {fileID: 2100000, guid: 9f5b20e0f7a2e204a9c6371ecb4ca947, type: 2}
   MoveMode: 2
-  WeaponOn: 1
+  WeaponOn: 2
 --- !u!4 &1551380614
 Transform:
   m_ObjectHideFlags: 0
@@ -1413,7 +1421,7 @@ GameObject:
   - component: {fileID: 1715364455}
   - component: {fileID: 1715364459}
   m_Layer: 0
-  m_Name: Marble
+  m_Name: OldMarble
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
