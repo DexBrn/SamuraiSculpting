@@ -79,8 +79,9 @@ public class Slicing : MonoBehaviour
             {
                 //NewTantoCut.AddComponent<TantoCutCross>().SubtractionCylinder = SubtractionCylinder;
                 //NewTantoCut.GetComponent<TantoCutCross>().StartPoint = TantoStartPoint;
-                DCScript.ApplyTantoCut(TantoStartPoint, TantoEndPoint);
+                //DCScript.ApplyTantoCut(TantoStartPoint, TantoEndPoint);
                 //DCScript.ApplyBladeCut(NewTantoCut);
+                DCScript.ApplyBoxCut(new Vector3(8, 12, 8), new Vector3(8, 8, 8), Quaternion.identity);
             }
         }
 

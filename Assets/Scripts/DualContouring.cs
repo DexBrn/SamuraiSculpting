@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using static UnityEditor.PlayerSettings;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public class DualContouring : MonoBehaviour
 {
@@ -456,5 +457,50 @@ public class DualContouring : MonoBehaviour
     }
 
 
+    public void ApplyBoxCut(Vector3 Centre, Vector3 HalfSize, Quaternion Rotation)
+    {
+        for (int x = 0; x < MDims.x; x++)
+            for (int y = 0; y < MDims.y; y++)
+                for (int z = 0; z < MDims.z; z++)
+                {
+                    // Rotate the voxel position into the box's local space
+                    // so we can do a simple axis-aligned bounds check
+                    Vector3 Local = Quaternion.Inverse(Rotation) *
+                                    (new Vector3(x + 0.5f, y + 0.5f, z + 0.5f) - Centre);
+
+                    if (Mathf.Abs(Local.x) < HalfSize.x &&
+                        Mathf.Abs(Local.y) < HalfSize.y &&
+                        Mathf.Abs(Local.z) < HalfSize.z)
+                    {
+                        Density[x, y, z] = -100f;
+                    }
+                }
+
+        Destroy(GameObject.Find("TantoCut"));
+        GenerateMesh();
+    }
+
+    public void NewTantoCut(Vector3 Centre, Vector3 HalfSize, Quaternion Rotation)
+    {
+        for (int x = 0; x < MDims.x; x++)
+            for (int y = 0; y < MDims.y; y++)
+                for (int z = 0; z < MDims.z; z++)
+                {
+                    Vector3 VoxelPos = transform.InverseTransformPoint(
+                        transform.TransformPoint(new Vector3(x + 0.5f, y + 0.5f, z + 0.5f) * transform.localScale.x));
+
+                    Vector3 Local = Quaternion.Inverse(Rotation) * (new Vector3(x + 0.5f, y + 0.5f, z + 0.5f) - Centre);
+
+                    if (Mathf.Abs(Local.x) < HalfSize.x &&
+                        Mathf.Abs(Local.y) < HalfSize.y &&
+                        Mathf.Abs(Local.z) < HalfSize.z)
+                    {
+                        Density[x, y, z] = -100f;
+                    }
+                }
+
+        Destroy(GameObject.Find("TantoCut"));
+        GenerateMesh();
+    }
 
 }
