@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 using static UnityEditor.PlayerSettings;
@@ -6,7 +7,7 @@ using static UnityEngine.EventSystems.EventTrigger;
 
 public class DualContouring : MonoBehaviour
 {
-    public Vector3Int MDims = new Vector3Int(32, 48, 32);
+    public Vector3Int MDims = new Vector3Int(64, 96, 64);
     public float IsoLevel = 0;
 
     float[,,] Density;
@@ -22,6 +23,7 @@ public class DualContouring : MonoBehaviour
         Density = new float[MDims.x, MDims.y, MDims.z];
         MeshFilter = GetComponent<MeshFilter>();
         //GameObject Sword = GameObject.Find("Sword");
+
 
         GenerateCuboid();
         //GenerateSphere();
@@ -463,10 +465,13 @@ public class DualContouring : MonoBehaviour
             for (int y = 0; y < MDims.y; y++)
                 for (int z = 0; z < MDims.z; z++)
                 {
-                    // Rotate the voxel position into the box's local space
-                    // so we can do a simple axis-aligned bounds check
+
+
                     Vector3 Local = Quaternion.Inverse(Rotation) *
-                                    (new Vector3(x + 0.5f, y + 0.5f, z + 0.5f) - Centre);
+                                    (new Vector3(x + 0.0f, y + 0.0f, z + 0.0f) - Centre);
+
+                    if (x % 4 == 0 && z % 4 == 0)
+                        print($"{x},{y},{z} - Centre: {Centre} :: Local: {Local} :: Half Size {HalfSize}  ");
 
                     if (Mathf.Abs(Local.x) < HalfSize.x &&
                         Mathf.Abs(Local.y) < HalfSize.y &&

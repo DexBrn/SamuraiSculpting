@@ -81,7 +81,15 @@ public class Slicing : MonoBehaviour
                 //NewTantoCut.GetComponent<TantoCutCross>().StartPoint = TantoStartPoint;
                 //DCScript.ApplyTantoCut(TantoStartPoint, TantoEndPoint);
                 //DCScript.ApplyBladeCut(NewTantoCut);
-                DCScript.ApplyBoxCut(new Vector3(8, 12, 8), new Vector3(8, 8, 8), Quaternion.identity);
+
+                Vector3 Midpoint = (TantoStartPoint + TantoEndPoint) / 2;
+                Vector3 HalfSize = (TantoEndPoint - Midpoint); HalfSize = new Vector3(Mathf.Abs(HalfSize.x) * 32 + .0f, Mathf.Abs(HalfSize.y) * 32 + .0f, 64f);
+                print(HalfSize);
+
+                DCScript.ApplyBoxCut(new Vector3(16, 20, 16), HalfSize, Quaternion.identity);
+                //DCScript.ApplyBoxCut(new Vector3(16, 24, 16), new Vector3(8, 8, 8), Quaternion.identity);
+                
+                
             }
         }
 
