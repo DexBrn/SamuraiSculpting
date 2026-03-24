@@ -466,13 +466,8 @@ public class DualContouring : MonoBehaviour
                 for (int z = 0; z < MDims.z; z++)
                 {
 
-
                     Vector3 Local = Quaternion.Inverse(Rotation) *
                                     (new Vector3(x + 0.0f, y + 0.0f, z + 0.0f) - Centre);
-
-                    if (x % 4 == 0 && z % 4 == 0)
-                        print($"{x},{y},{z} - Centre: {Centre} :: Local: {Local} :: Half Size {HalfSize}  ");
-
                     if (Mathf.Abs(Local.x) < HalfSize.x &&
                         Mathf.Abs(Local.y) < HalfSize.y &&
                         Mathf.Abs(Local.z) < HalfSize.z)
@@ -487,6 +482,7 @@ public class DualContouring : MonoBehaviour
 
     public void NewTantoCut(Vector3 Centre, Vector3 HalfSize, Quaternion Rotation)
     {
+        
         for (int x = 0; x < MDims.x; x++)
             for (int y = 0; y < MDims.y; y++)
                 for (int z = 0; z < MDims.z; z++)

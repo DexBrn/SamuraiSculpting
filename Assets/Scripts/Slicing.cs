@@ -77,20 +77,91 @@ public class Slicing : MonoBehaviour
             }
             if (Input.GetMouseButtonUp(0))
             {
-                //NewTantoCut.AddComponent<TantoCutCross>().SubtractionCylinder = SubtractionCylinder;
-                //NewTantoCut.GetComponent<TantoCutCross>().StartPoint = TantoStartPoint;
-                //DCScript.ApplyTantoCut(TantoStartPoint, TantoEndPoint);
-                //DCScript.ApplyBladeCut(NewTantoCut);
-
+                
                 Vector3 Midpoint = (TantoStartPoint + TantoEndPoint) / 2;
-                Vector3 HalfSize = (TantoEndPoint - Midpoint); HalfSize = new Vector3(Mathf.Abs(HalfSize.x) * 32 + .0f, Mathf.Abs(HalfSize.y) * 32 + .0f, 64f);
-                print(HalfSize);
+                //Vector3 HalfSize = (TantoEndPoint - Midpoint); HalfSize = new Vector3(Mathf.Abs(HalfSize.x) * 32, Mathf.Abs(HalfSize.y) * 32 + 0.01f, 128f);
+                float length = Vector3.Distance(TantoStartPoint, TantoEndPoint);
 
-                DCScript.ApplyBoxCut(new Vector3(16, 20, 16), HalfSize, Quaternion.identity);
+                // constant thickness (THIS fixes diagonal issue)
+                float thickness = 0.75f;
+
+                Vector3 MDims = DCScript.MDims;
+                // guaranteed to go through whole marble
+                float depth = Mathf.Max(MDims.x, MDims.y, MDims.z);
+
+                Vector3 HalfSize = new Vector3(
+                    thickness,        // X  blade thickness (constant!)
+                    depth,            // Y  goes THROUGH the marble
+                    length * 10f     // Z  along the cut direction
+                );
+
+                float TantoX = 16;
+                float TantoY = 24;
+
+                if (true)
+                {
+                    for (int i = 0; i < 32; i++)
+                    {
+                        if (Midpoint.x <= -0.97f + ((0.060625f * i) + 0.0303125) && Midpoint.x >= -0.97f + ((0.060625f * i) - 0.0303125))
+                        { TantoX = i + 16; }
+                    }
+                    if (Midpoint.x > 0.97f)
+                        TantoX = 48;
+
+                    for (int i = 0; i < 48; i++)
+                    {
+                        if (Midpoint.y <= 0.215f + ((0.060625f * i) + 0.0303125) && Midpoint.y >= 0.215f + ((0.060625f * i) - 0.0303125))
+                        { TantoY = i + 24; }
+                    }
+                    if (Midpoint.y > 3.125f)
+                        TantoY = 72;
+                }
+
+                Vector3 Direction = (TantoEndPoint - TantoStartPoint).normalized;
+
+                // Use camera forward to stabilize orientation
+                Vector3 Up = Camera.main.transform.forward;
+
+                // Prevent degenerate case (when direction ~~ up)
+                if (Vector3.Dot(Direction, Up) > 0.99f)
+                    Up = Vector3.up;
+
+
+                DCScript.ApplyBoxCut(new Vector3(TantoX, TantoY, 16), HalfSize, Quaternion.LookRotation(Direction, Up));
                 //DCScript.ApplyBoxCut(new Vector3(16, 24, 16), new Vector3(8, 8, 8), Quaternion.identity);
                 
-                
-            }
+                /*
+                Vector3 voxelStart = WorldToVoxel(TantoStartPoint);
+                Vector3 voxelEnd = WorldToVoxel(TantoEndPoint);
+
+                Vector3 direction = (voxelEnd - voxelStart).normalized;
+                float length = Vector3.Distance(voxelStart, voxelEnd);
+
+                // Stable rotation
+                Vector3 up = Camera.main.transform.forward;
+                if (Vector3.Dot(direction, up) > 0.99f)
+                    up = Vector3.up;
+
+                Quaternion rotation = Quaternion.LookRotation(direction, up);
+
+                // Proper sizes
+                float thickness = 0.75f;
+                Vector3 MDims = DCScript.MDims;
+                float depth = Mathf.Max(MDims.x, MDims.y, MDims.z);
+
+                Vector3 halfSize = new Vector3(
+                    thickness,
+                    depth,
+                    length *10f
+                );
+
+                // Accurate centre
+                Vector3 centre = (voxelStart + voxelEnd) * 0.5f;
+                print(centre);
+                // Apply
+                DCScript.ApplyBoxCut(centre, halfSize, rotation);
+                */
+            }   
         }
 
 
@@ -101,6 +172,16 @@ public class Slicing : MonoBehaviour
             else
                 MoveMode = 1;
         }
+
+
+
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+                WeaponOn = 1;
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+                WeaponOn = 2;
+
+
+
 
         //GameObject.Find("Result2").transform.position = Sword.transform.position;
     }
@@ -191,4 +272,20 @@ public class Slicing : MonoBehaviour
 
 
     }
+
+    Vector3 WorldToVoxel(Vector3 worldPos)
+    {
+        // Convert world  local (relative to marble)
+        Vector3 local = transform.InverseTransformPoint(worldPos) * 0.05f;
+        Vector3 MDims = DCScript.MDims;
+        // Convert local  voxel space
+        return new Vector3(
+            (local.x + 1f) * 0.5f * MDims.x,
+            (local.y + 1f) * 0.5f * MDims.y,
+            (local.z + 1f) * 0.5f * MDims.z
+        );
+    }
+
+
+
 }
