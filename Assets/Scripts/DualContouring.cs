@@ -24,10 +24,13 @@ public class DualContouring : MonoBehaviour
         MeshFilter = GetComponent<MeshFilter>();
         //GameObject Sword = GameObject.Find("Sword");
 
-
-        GenerateCuboid();
-        //GenerateSphere();
-        GenerateMesh();
+        if (name == "Marble")
+        {
+            GenerateCuboid();
+            //GenerateSphere();
+            GenerateMesh();
+        }
+        
     }
 
     private void Update()
@@ -111,8 +114,16 @@ public class DualContouring : MonoBehaviour
         Mesh.vertices = Vertices.ToArray();
         Mesh.triangles = Triangles.ToArray();
         Mesh.RecalculateNormals();
+        if (name!= "Marble")
+        {
+            DestroyImmediate(GetComponent<MeshFilter>());
+            MeshFilter= gameObject.AddComponent<MeshFilter>();
+        }
+        
         MeshFilter.mesh = Mesh;
     }
+
+
 
     bool ProcessCell(int x, int y, int z, out Vector3 Vertex)
     {
@@ -362,6 +373,118 @@ public class DualContouring : MonoBehaviour
     }
 
 
+    public List<List<Vector3Int>> FindIslands()
+    {
+        bool[,,] visited = new bool[MDims.x, MDims.y, MDims.z];
+        List<List<Vector3Int>> islands = new List<List<Vector3Int>>();
+
+        for (int x = 0; x < MDims.x; x++)
+            for (int y = 0; y < MDims.y; y++)
+                for (int z = 0; z < MDims.z; z++)
+                {
+                    if (visited[x, y, z]) continue;
+                    if (Density[x, y, z] <= IsoLevel) continue;
+
+                    List<Vector3Int> island = new List<Vector3Int>();
+                    Queue<Vector3Int> queue = new Queue<Vector3Int>();
+
+                    queue.Enqueue(new Vector3Int(x, y, z));
+                    visited[x, y, z] = true;
+
+                    while (queue.Count > 0)
+                    {
+                        Vector3Int current = queue.Dequeue();
+                        island.Add(current);
+
+                        foreach (Vector3Int dir in Directions)
+                        {
+                            Vector3Int next = current + dir;
+
+                            if (next.x < 0 || next.y < 0 || next.z < 0 ||
+                                next.x >= MDims.x || next.y >= MDims.y || next.z >= MDims.z)
+                                continue;
+
+                            if (visited[next.x, next.y, next.z]) continue;
+                            if (Density[next.x, next.y, next.z] <= IsoLevel) continue;
+
+                            visited[next.x, next.y, next.z] = true;
+                            queue.Enqueue(next);
+                        }
+                    }
+
+                    islands.Add(island);
+                }
+
+        return islands;
+    }
+
+
+    static readonly Vector3Int[] Directions = new Vector3Int[]
+{
+    new Vector3Int(1,0,0), new Vector3Int(-1,0,0),
+    new Vector3Int(0,1,0), new Vector3Int(0,-1,0),
+    new Vector3Int(0,0,1), new Vector3Int(0,0,-1),
+};
+
+
+
+
+    public void CreateDebris(List<Vector3Int> island)
+    {
+        GameObject debris = Instantiate(gameObject);
+
+        debris.transform.position = Sword.transform.position;
+        debris.transform.rotation = transform.rotation;
+
+        var dc = debris.AddComponent<DualContouring>();
+        debris.AddComponent<DebrisCleanup>();
+        //var dc = debris.AddComponent<DualContouring>();
+        //
+        dc.MDims = MDims;
+        dc.IsoLevel = IsoLevel;
+
+        dc.Density = new float[MDims.x, MDims.y, MDims.z];
+
+        
+        for (int x = 0; x < MDims.x; x++)
+            for (int y = 0; y < MDims.y; y++)
+                for (int z = 0; z < MDims.z; z++)
+                {
+                    dc.Density[x, y, z] = -100;
+                }
+        
+
+        // Copy ONLY this island
+        foreach (var voxel in island)
+        {
+            //print(voxel);
+            dc.Density[voxel.x, voxel.y, voxel.z] = Density[voxel.x, voxel.y, voxel.z];
+
+            // Remove from original
+            Density[voxel.x, voxel.y, voxel.z] = -100f;
+        }
+
+        dc.GenerateMesh();
+        GenerateMesh();
+        // Add physics
+        var rb = debris.AddComponent<Rigidbody>();
+        //rb.mass = island.Count * 0.01f;
+        debris.GetComponent<BoxCollider>().size /= 10;
+        rb.mass = 1f;
+        rb.AddForce((Vector3.up + Vector3.right) * 2 , ForceMode.Impulse);
+    }
+
+
+
+
+
+
+
+    /// ////////////ACTIONS//////////////////////////
+
+
+
+
     public void Slice(Vector3 StartPos, Vector3 EndPos)
     {
 
@@ -413,7 +536,7 @@ public class DualContouring : MonoBehaviour
                 }
         GenerateMesh();
     }
-
+    
     
 
 

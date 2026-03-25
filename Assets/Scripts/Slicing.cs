@@ -2,6 +2,7 @@ using UnityEngine;
 using Unity.Mathematics;
 using EzySlice;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using System.Net;
@@ -56,6 +57,23 @@ public class Slicing : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.F) || Input.GetMouseButtonDown(0))
             {
                 StartCoroutine(SliceVisual());
+                var islands = DCScript.FindIslands();
+                //print(islands);
+                List<Vector3Int> mainIsland = islands[0];
+
+                foreach (var island in islands)
+                {
+                    if (island.Count > mainIsland.Count)
+                        mainIsland = island;
+                    
+                }
+                foreach (var island in islands)
+                {
+                    if (island == mainIsland) continue;
+
+                    DCScript.CreateDebris(island);
+                }
+
             }
         }
         if (WeaponOn == 2)
@@ -109,10 +127,27 @@ public class Slicing : MonoBehaviour
 
                 // Accurate centre
                 Vector3 centre = (voxelStart + voxelEnd) * 0.5f;
-                print(centre);
+                //print(centre);
                 // Apply
                 DCScript.ApplyTantoCut(centre, halfSize, rotation);
-                
+
+                var islands = DCScript.FindIslands();
+                //print(islands);
+                List<Vector3Int> mainIsland = islands[0];
+
+                foreach (var island in islands)
+                {
+                    if (island.Count > mainIsland.Count)
+                        mainIsland = island;
+
+                }
+                foreach (var island in islands)
+                {
+                    if (island == mainIsland) continue;
+
+                    DCScript.CreateDebris(island);
+                }
+
             }   
         }
 
@@ -185,7 +220,7 @@ public class Slicing : MonoBehaviour
     }
 
    
-
+    /*
     public IEnumerator KatanaSlice(Vector3 SwordPos, Vector3 SwordDirection)
     {
         
@@ -211,7 +246,7 @@ public class Slicing : MonoBehaviour
         yield return new WaitForSeconds(2);
         Destroy(Debris); //Clean up debris
     }
-
+    */
 
     void TantoControl()
     {
@@ -232,7 +267,7 @@ public class Slicing : MonoBehaviour
     {
         // Convert world  local (relative to marble)
         Vector3 local = Marble.transform.InverseTransformPoint(worldPos);
-        print(local);
+        //print(local);
         Vector3 MDims = DCScript.MDims;
         // Convert local  voxel space
         return local;
