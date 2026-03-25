@@ -32,7 +32,8 @@ public class Slicing : MonoBehaviour
     Vector3 TantoStartPoint;
     Vector3 TantoEndPoint;
     GameObject NewTantoCut;
-    
+
+    Vector3 OriginalViewModelPos;
 
 
     void Start()
@@ -42,6 +43,7 @@ public class Slicing : MonoBehaviour
         CurRotation = Sword.transform.rotation.z;
         MarbleStartPos = Marble.transform.position;
         DCScript = Marble.GetComponent<DualContouring>();
+        OriginalViewModelPos = ViewModel.transform.position;
     }
 
 
@@ -167,11 +169,18 @@ public class Slicing : MonoBehaviour
                 Sword.transform.right = SwordDirection;
             }
             else
-            {Sword.transform.position = MousePos; ViewModel.transform.position += Sword.transform.position * 0.1f; }
+            {
+                Vector2 MInput = MousePos;
+                MInput.x = Mathf.Clamp(MInput.x, 0.09f, 1.09f);
+                MInput.y = Mathf.Clamp(MInput.y, 1.09f, 3.09f);
+
+                Sword.transform.position = MousePos; 
+                ViewModel.transform.localPosition = Vector3.Slerp(ViewModel.transform.localPosition, new Vector3(MInput.x, MInput.y-2, 0) +OriginalViewModelPos, 3f * Time.deltaTime);
+
+            }
         }
 
-        
-        
+
 
     }
 
@@ -232,12 +241,15 @@ public class Slicing : MonoBehaviour
 
     IEnumerator SliceVisual()
     {
+        ViewModel.GetComponent<Animator>().enabled = true;
         ViewModel.GetComponent<Animator>().SetBool("IsCutting", true);
         yield return new WaitForSeconds(0.22f);
         DCScript.Slice(Sword.transform.position - Sword.transform.up * 2, Sword.transform.position + Sword.transform.up * 2);
         yield return new WaitForSeconds(0.09f);
         ViewModel.GetComponent<Animator>().SetBool("IsCutting", false);
-        
+        yield return new WaitForSeconds(.59f);
+        ViewModel.GetComponent<Animator>().enabled = false;
+
     }
 
 }
