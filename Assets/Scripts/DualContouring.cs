@@ -362,7 +362,7 @@ public class DualContouring : MonoBehaviour
     }
 
 
-    void Slice(Vector3 StartPos, Vector3 EndPos)
+    public void Slice(Vector3 StartPos, Vector3 EndPos)
     {
 
         StartPos = transform.InverseTransformPoint(StartPos);
@@ -414,52 +414,10 @@ public class DualContouring : MonoBehaviour
         GenerateMesh();
     }
 
-    public void ApplyTantoCut(Vector3 StartPos, Vector3 EndPos, float BladeThickness = 0.5f)
-    {
-        Vector3 VoxelStart = transform.InverseTransformPoint(StartPos);
-        Vector3 VoxelEnd = transform.InverseTransformPoint(EndPos);
-
-        Vector3 SliceDirection = (VoxelEnd - VoxelStart).normalized;
-        float SliceLength = Vector3.Distance(VoxelStart, VoxelEnd);
-
-        Vector3 CamForwardLocal = transform.InverseTransformDirection(Camera.main.transform.forward);
-        Vector3 PlaneNormal = Vector3.Cross(SliceDirection, CamForwardLocal).normalized;
-
-        UnityEngine.Plane CuttingPlane = new UnityEngine.Plane(PlaneNormal, VoxelStart);
-
-        for (int x = 0; x < MDims.x; x++)
-            for (int y = 0; y < MDims.y; y++)
-                for (int z = 0; z < MDims.z; z++)
-                {
-                    Vector3 VoxelCentre = new Vector3(x + 0.5f, y + 0.5f, z + 0.5f);
-
-                    float Projection = Vector3.Dot(VoxelCentre - VoxelStart, SliceDirection);
-                    if (Projection < 0f || Projection > SliceLength)
-                        continue;
-
-                    // Find the minimum distance from the plane to any of the 8 voxel corners
-                    float MinDist = float.MaxValue;
-                    for (int dx = 0; dx <= 1; dx++)
-                        for (int dy = 0; dy <= 1; dy++)
-                            for (int dz = 0; dz <= 1; dz++)
-                            {
-                                Vector3 Corner = new Vector3(x + dx, y + dy, z + dz);
-                                float Dist = Mathf.Abs(CuttingPlane.GetDistanceToPoint(Corner));
-                                if (Dist < MinDist) MinDist = Dist;
-                            }
-
-                    if (MinDist > BladeThickness)
-                        continue;
-
-                    Density[x, y, z] = -100f;
-                }
-
-        Destroy(GameObject.Find("TantoCut"));
-        GenerateMesh();
-    }
+    
 
 
-    public void ApplyBoxCut(Vector3 Centre, Vector3 HalfSize, Quaternion Rotation)
+    public void ApplyTantoCut(Vector3 Centre, Vector3 HalfSize, Quaternion Rotation)
     {
         for (int x = 0; x < MDims.x; x++)
             for (int y = 0; y < MDims.y; y++)
@@ -480,28 +438,6 @@ public class DualContouring : MonoBehaviour
         GenerateMesh();
     }
 
-    public void NewTantoCut(Vector3 Centre, Vector3 HalfSize, Quaternion Rotation)
-    {
-        
-        for (int x = 0; x < MDims.x; x++)
-            for (int y = 0; y < MDims.y; y++)
-                for (int z = 0; z < MDims.z; z++)
-                {
-                    Vector3 VoxelPos = transform.InverseTransformPoint(
-                        transform.TransformPoint(new Vector3(x + 0.5f, y + 0.5f, z + 0.5f) * transform.localScale.x));
-
-                    Vector3 Local = Quaternion.Inverse(Rotation) * (new Vector3(x + 0.5f, y + 0.5f, z + 0.5f) - Centre);
-
-                    if (Mathf.Abs(Local.x) < HalfSize.x &&
-                        Mathf.Abs(Local.y) < HalfSize.y &&
-                        Mathf.Abs(Local.z) < HalfSize.z)
-                    {
-                        Density[x, y, z] = -100f;
-                    }
-                }
-
-        Destroy(GameObject.Find("TantoCut"));
-        GenerateMesh();
-    }
+    
 
 }
