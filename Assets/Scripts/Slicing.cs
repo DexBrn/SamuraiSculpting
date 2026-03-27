@@ -15,11 +15,12 @@ public class Slicing : MonoBehaviour
     GameObject Sword;
 
     DualContouring DCScript;
+    Timer Timer;
 
     public float MoveSpeed;
     public float RotateSpeed;
     float CurRotation;
-    float CutCount = 0;
+    public float CutCount = 0;
 
     public Material MarbleMat;
     TextureRegion Region;
@@ -37,6 +38,8 @@ public class Slicing : MonoBehaviour
     Vector3 OriginalViewModelPos;
 
 
+
+
     void Start()
     {
         Sword = GameObject.Find("Sword");
@@ -44,6 +47,7 @@ public class Slicing : MonoBehaviour
         CurRotation = Sword.transform.rotation.z;
         MarbleStartPos = Marble.transform.position;
         DCScript = Marble.GetComponent<DualContouring>();
+        Timer = GetComponent<Timer>();
         OriginalViewModelPos = ViewModel.transform.position;
     }
 
@@ -73,7 +77,8 @@ public class Slicing : MonoBehaviour
 
                     DCScript.CreateDebris(island);
                 }
-
+                CutCount++;
+                Timer.TimerOn = true;
             }
         }
         if (WeaponOn == 2)
@@ -147,7 +152,8 @@ public class Slicing : MonoBehaviour
 
                     DCScript.CreateDebris(island);
                 }
-
+                CutCount++;
+                Timer.TimerOn = true;
             }   
         }
 
