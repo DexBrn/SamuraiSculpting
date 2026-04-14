@@ -48,9 +48,9 @@ public class SculptureCheckScript : MonoBehaviour
                 Vector3 StartPos = new Vector3(-0.95f + (x * 0.1f), 3f - (y * 0.14f), Camera.main.transform.position.z);
                 RaycastHit hit;
                 if (Physics.Raycast(StartPos, Vector3.forward, out hit, Mathf.Infinity, TarLayer))
-                {   Debug.DrawRay(StartPos, Vector3.forward * hit.distance, GoodColour, 999); TargetHitCount++; }
+                {  TargetHitCount++; } //Debug.DrawRay(StartPos, Vector3.forward * hit.distance, GoodColour, 999);
                 else
-                {  Debug.DrawRay(StartPos, Vector3.forward, Color.red, 999); }
+                { }//Debug.DrawRay(StartPos, Vector3.forward, Color.red, 999); }
                 
             }
         /*

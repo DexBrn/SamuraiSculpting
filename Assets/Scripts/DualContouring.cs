@@ -16,7 +16,7 @@ public class DualContouring : MonoBehaviour
     Mesh Mesh;
 
     public GameObject Sword;
-
+    public GameObject Target;
 
     void Start()
     {
@@ -41,6 +41,20 @@ public class DualContouring : MonoBehaviour
         }
     }
 
+    private void FixedUpdate()
+    {
+        if (Input.GetKey(KeyCode.E))
+        {
+            
+            transform.parent.Rotate(0, 1, 0);
+            Target.transform.Rotate(0, 1, 0);
+        }
+        else if (Input.GetKey(KeyCode.Q))
+        {
+            transform.parent.Rotate(0, -1, 0);
+            Target.transform.Rotate(0, -1, 0);
+        }
+    }
 
     void GenerateCuboid()
     {
@@ -488,19 +502,23 @@ public class DualContouring : MonoBehaviour
     public void Slice(Vector3 StartPos, Vector3 EndPos)
     {
 
-        StartPos = transform.InverseTransformPoint(StartPos);
-        EndPos = transform.InverseTransformPoint(EndPos);
+
 
         float PositiveSide = 0f;
         float NegativeSide = 0f;
-        
 
-        Vector3 Direction = (EndPos - StartPos).normalized;
-        Vector3 PlaneNormal = Vector3.Cross(Direction, Camera.main.transform.forward).normalized;
+
+        StartPos = transform.InverseTransformPoint(StartPos);
+        EndPos = transform.InverseTransformPoint(EndPos);
+
+        Vector3 camForward = transform.InverseTransformDirection(Camera.main.transform.forward);
+
+        Vector3 screenDir = Vector3.ProjectOnPlane(EndPos - StartPos, camForward).normalized;
+        Vector3 PlaneNormal = Vector3.Cross(screenDir, camForward).normalized;
 
         UnityEngine.Plane Plane = new UnityEngine.Plane(PlaneNormal, StartPos);
 
-       
+
 
         for (int x = 0; x < MDims.x; x++)
             for (int y = 0; y < MDims.y; y++)
@@ -510,7 +528,7 @@ public class DualContouring : MonoBehaviour
 
                     if (d > IsoLevel)
                     {
-                        Vector3 Pos = new Vector3(x, y, MDims.z / 2);
+                        Vector3 Pos = new Vector3(x, y, z);
 
                         float PlaneDistance = Plane.GetDistanceToPoint(Pos);
 
@@ -523,10 +541,15 @@ public class DualContouring : MonoBehaviour
             for (int y = 0; y < MDims.y; y++)
                 for (int z = 0; z < MDims.z; z++)
                 {
-                    Vector3 Pos = new Vector3(x, y, MDims.z / 2);
+                    Vector3 Pos = new Vector3(x, y, z);
 
                     float PlaneDistance = Plane.GetDistanceToPoint(Pos);
-
+                    /*
+                    if (PlaneDistance < 1f)
+                    {
+                        Density[x, y, z] = -100;
+                    }
+                    */
                     if (PositiveSide > NegativeSide)
                         Density[x, y, z ] = Mathf.Min(Density[x,y,z], PlaneDistance);
                     else
