@@ -109,6 +109,12 @@ public class Slicing : MonoBehaviour
                 Vector3 voxelStart = WorldToVoxel(TantoStartPoint);
                 Vector3 voxelEnd = WorldToVoxel(TantoEndPoint);
 
+                Vector3 camForward = Marble.transform.InverseTransformDirection(Camera.main.transform.forward);
+
+                Vector3 screenDir = Vector3.ProjectOnPlane(voxelEnd - voxelStart, camForward).normalized;
+                Vector3 PlaneNormal = Vector3.Cross(screenDir, camForward).normalized;
+
+
                 Vector3 direction = (voxelEnd - voxelStart).normalized;
                 float length = Vector3.Distance(voxelStart, voxelEnd);
 
@@ -117,7 +123,17 @@ public class Slicing : MonoBehaviour
                 if (Vector3.Dot(direction, up) > 0.99f)
                     up = Vector3.up;
 
-                Quaternion rotation = Quaternion.LookRotation(direction, up);
+                // Z axis = along the slice (blade direction)
+                Vector3 forward = direction;
+
+                // Y axis = plane normal (this makes cut face camera correctly)
+                Vector3 upAxis = PlaneNormal;
+
+                // X axis = perpendicular (completes orthonormal basis)
+                Vector3 right = Vector3.Cross(upAxis, forward).normalized;
+
+                // Rebuild a perfectly aligned rotation
+                Quaternion rotation = Quaternion.LookRotation(forward, upAxis);
 
                 // Proper sizes
                 float thickness = 0.75f;
@@ -125,8 +141,8 @@ public class Slicing : MonoBehaviour
                 float depth = Mathf.Max(MDims.x, MDims.y, MDims.z);
 
                 Vector3 halfSize = new Vector3(
-                    thickness,
                     depth,
+                    thickness,
                     length *0.5f
                 );
 

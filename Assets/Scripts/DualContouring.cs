@@ -43,17 +43,21 @@ public class DualContouring : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (Input.GetKey(KeyCode.E))
+        if (transform.parent)
         {
-            
-            transform.parent.Rotate(0, 1, 0);
-            Target.transform.Rotate(0, 1, 0);
+            if (Input.GetKey(KeyCode.E))
+            {
+
+                transform.parent.Rotate(0, 1, 0);
+                Target.transform.Rotate(0, 1, 0);
+            }
+            else if (Input.GetKey(KeyCode.Q))
+            {
+                transform.parent.Rotate(0, -1, 0);
+                Target.transform.Rotate(0, -1, 0);
+            }
         }
-        else if (Input.GetKey(KeyCode.Q))
-        {
-            transform.parent.Rotate(0, -1, 0);
-            Target.transform.Rotate(0, -1, 0);
-        }
+        
     }
 
     void GenerateCuboid()
