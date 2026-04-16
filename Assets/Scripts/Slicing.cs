@@ -223,7 +223,7 @@ public class Slicing : MonoBehaviour
             if (Input.GetMouseButton(1))
             {
                 Vector3 SwordDirection = MousePos - Sword.transform.position;
-                Sword.transform.right = SwordDirection;
+                Sword.transform.up = SwordDirection;
             }
             else
             {

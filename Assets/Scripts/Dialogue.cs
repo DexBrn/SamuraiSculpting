@@ -9,6 +9,7 @@ public class Dialogue : MonoBehaviour
 
     float LetterSpeed = 0.035f;
     public TMP_Text DialogueBox;
+    public GameObject LevelSelect;
     bool WritingText = false;
     int CurrentText;
 
@@ -36,7 +37,7 @@ public class Dialogue : MonoBehaviour
             {
                 CurrentText++;
                 if (CurrentText >= TextList.Count)
-                { DialogueBox.transform.parent.gameObject.SetActive(false); return; }
+                { DialogueBox.transform.parent.gameObject.SetActive(false); LevelSelect.SetActive(true); return; }
                 StartCoroutine(WriteText(TextList[CurrentText]));
             }
         }
