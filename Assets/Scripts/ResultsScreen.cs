@@ -34,11 +34,20 @@ public class ResultsScreen : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.RightShift))
         {
+            return;
             SCS.SecondCheck();
             StartCoroutine(RevealResults());
             Timer.TimerOn = false;
 
         }
+    }
+
+    public void OpenResultsScreen()
+    {
+        SCS.CheckTarget(LayerMask.GetMask("Xray"));
+        SCS.SecondCheck();
+        StartCoroutine(RevealResults());
+        Timer.TimerOn = false;
     }
 
     public IEnumerator RevealResults()

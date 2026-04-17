@@ -30,7 +30,7 @@ public class SculptureCheckScript : MonoBehaviour
         Marble.AddComponent<MeshCollider>().convex = true;
 
         float HitCountGoal = TargetHitCount;
-        CheckTarget(LayerMask.GetMask("Default"));
+        CheckTarget(LayerMask.GetMask("Marble"));
 
         print($"Goal: {HitCountGoal} :: Attempt: {TargetHitCount}");
 

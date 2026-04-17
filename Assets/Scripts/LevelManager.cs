@@ -3,12 +3,14 @@ using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using TMPro;
 using UnityEditor.ShaderGraph.Internal;
+using static UnityEngine.GraphicsBuffer;
 public class LevelManager : MonoBehaviour
 {
 
     public List<LevelObject> LevelList = new List<LevelObject>();
 
     public DualContouring DCScript;
+    ResultsScreen RSScript;
 
     public TMP_Text LevelNameObj;
     public TMP_Text LevelDescriptionObj;
@@ -18,20 +20,36 @@ public class LevelManager : MonoBehaviour
 
     int CurrentLevel;
 
-    void Start()
+    GameObject CurrentTarget;
+    int CurrentTargetIndex;
+
+    void Awake()
     {
+        RSScript = GetComponent<ResultsScreen>();
+
         if (SceneManager.GetActiveScene() == SceneManager.GetSceneByName("Main"))
         {
             CurrentLevel = PlayerPrefs.GetInt("SelectedLevel");
-            GameObject FirstTarget = Instantiate(LevelList[CurrentLevel].TargetSculptures[0]);
-            FirstTarget.name = "Target";
-            DCScript.Target = FirstTarget;
+            CurrentTarget = Instantiate(LevelList[CurrentLevel].TargetSculptures[0]);
+            CurrentTarget.name = "Target";
+            DCScript.Target = CurrentTarget;
+            CurrentTargetIndex++;
         }
     }
 
     void Update()
     {
-        
+        if (Input.GetKey(KeyCode.Return))
+        {
+            if (CurrentTargetIndex == 3)
+            { RSScript.OpenResultsScreen(); return; }
+            Destroy(CurrentTarget);
+            CurrentTarget = Instantiate(LevelList[CurrentLevel].TargetSculptures[CurrentTargetIndex]);
+            CurrentTarget.name = "Target";
+            DCScript.Target = CurrentTarget;
+            CurrentTargetIndex++;
+            
+        }
     }
 
 
