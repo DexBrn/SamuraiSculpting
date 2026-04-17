@@ -35,9 +35,12 @@ public class DualContouring : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.M))
+        if (transform.parent)
         {
-            Slice(Sword.transform.position - Sword.transform.up * 2, Sword.transform.position + Sword.transform.up * 2);
+            if (Input.GetKeyDown(KeyCode.H))
+                Target.SetActive(!Target.activeSelf);
+            if (Input.GetKeyDown(KeyCode.KeypadEnter))
+                ResetMarble();
         }
     }
 
@@ -56,9 +59,19 @@ public class DualContouring : MonoBehaviour
                 transform.parent.Rotate(0, -1, 0);
                 Target.transform.Rotate(0, -1, 0);
             }
+
+            
         }
         
     }
+
+    void ResetMarble()
+    {
+        Density = new float[MDims.x, MDims.y, MDims.z];
+        GenerateCuboid();
+        GenerateMesh();
+    }
+
 
     void GenerateCuboid()
     {

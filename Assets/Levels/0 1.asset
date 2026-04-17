@@ -16,7 +16,10 @@ MonoBehaviour:
   Name: The Basics
   Description: After inheriting your father's katana, you begin to take on the family
     business.
-  TargetSculptures: []
+  TargetSculptures:
+  - {fileID: 832710699537922295, guid: d5ff7cee533939e4ba3bf0916bafa5a7, type: 3}
+  - {fileID: 2223591996331548241, guid: ee8aa2615a47626489218d53993b51a1, type: 3}
+  - {fileID: 3455379770576449233, guid: 57f7703dbb32e5a41824915427ce4726, type: 3}
   Accuracy:
   - 95
   - 80

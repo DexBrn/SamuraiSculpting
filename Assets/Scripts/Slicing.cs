@@ -13,6 +13,9 @@ public class Slicing : MonoBehaviour
     public GameObject SubtractionCylinder;
     public GameObject ViewModel;
     GameObject Sword;
+    public GameObject KatanaModel;
+    public GameObject TantoModel;
+
 
     DualContouring DCScript;
     Timer Timer;
@@ -185,9 +188,9 @@ public class Slicing : MonoBehaviour
 
 
         if (Input.GetKeyDown(KeyCode.Alpha1))
-                WeaponOn = 1;
+        { WeaponOn = 1; KatanaModel.SetActive(true); TantoModel.SetActive(false); }
         if (Input.GetKeyDown(KeyCode.Alpha2))
-                WeaponOn = 2;
+        { WeaponOn = 2; KatanaModel.SetActive(false); TantoModel.SetActive(true); }
 
     }
 
