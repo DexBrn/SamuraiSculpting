@@ -11,6 +11,7 @@ public class LevelManager : MonoBehaviour
 
     public DualContouring DCScript;
     ResultsScreen RSScript;
+    SculptureCheckScript SCScript;
 
     public TMP_Text LevelNameObj;
     public TMP_Text LevelDescriptionObj;
@@ -18,7 +19,7 @@ public class LevelManager : MonoBehaviour
     public TMP_Text TimeGradeObj;
     public TMP_Text CutGradeObj;
 
-    int CurrentLevel;
+    public int CurrentLevel;
 
     GameObject CurrentTarget;
     int CurrentTargetIndex;
@@ -26,6 +27,7 @@ public class LevelManager : MonoBehaviour
     void Awake()
     {
         RSScript = GetComponent<ResultsScreen>();
+        SCScript = GetComponent<SculptureCheckScript>();
 
         if (SceneManager.GetActiveScene() == SceneManager.GetSceneByName("Main"))
         {
@@ -43,7 +45,9 @@ public class LevelManager : MonoBehaviour
         {
             if (CurrentTargetIndex == 3)
             { RSScript.OpenResultsScreen(); return; }
+            SCScript.FullCheck();
             Destroy(CurrentTarget);
+            DCScript.ResetMarble();
             CurrentTarget = Instantiate(LevelList[CurrentLevel].TargetSculptures[CurrentTargetIndex]);
             CurrentTarget.name = "Target";
             DCScript.Target = CurrentTarget;

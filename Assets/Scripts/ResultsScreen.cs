@@ -16,17 +16,19 @@ public class ResultsScreen : MonoBehaviour
     public float CutCount;
     public string Grade;
 
-
+    int TotalGrades;
 
     SculptureCheckScript SCS;
     Slicing Slicing;
     Timer Timer;
+    LevelManager LevelManager;
 
     void Start()
     {
         SCS = GetComponent<SculptureCheckScript>();
         Slicing = GetComponent<Slicing>();
         Timer = GetComponent<Timer>();
+        LevelManager = GetComponent<LevelManager>();
     }
 
 
@@ -44,10 +46,11 @@ public class ResultsScreen : MonoBehaviour
 
     public void OpenResultsScreen()
     {
-        SCS.CheckTarget(LayerMask.GetMask("Xray"));
-        SCS.SecondCheck();
+        SCS.FullCheck();
+        CheckGrades();
         StartCoroutine(RevealResults());
         Timer.TimerOn = false;
+
     }
 
     public IEnumerator RevealResults()
@@ -55,7 +58,7 @@ public class ResultsScreen : MonoBehaviour
         ResultsPanel.SetActive(true);
         yield return new WaitForSeconds(1);
         AccuracyText.enabled = true;
-        AccuracyText.text = $"Accuracy: {Mathf.RoundToInt(SCS.Accuracy)}%";
+        AccuracyText.text = $"Accuracy: {Mathf.RoundToInt(SCS.TotalAccuracy)}%";
         yield return new WaitForSeconds(1);
         TimeTakenText.enabled = true;
         TimeTakenText.text = $"Time: {Mathf.RoundToInt(Timer.CurrentTime)}s";
@@ -67,5 +70,34 @@ public class ResultsScreen : MonoBehaviour
         GradeText.text = $"S";
     }
 
+    public void CheckGrades()
+    {
+        int CurrentLevel = LevelManager.CurrentLevel;
 
+        for (int i = 0; i < LevelManager.LevelList[CurrentLevel].Accuracy.Count; i++)
+        {
+            if (SCS.TotalAccuracy > LevelManager.LevelList[CurrentLevel].Accuracy[i])
+            { TotalGrades += i; break; }
+            if (i == LevelManager.LevelList[CurrentLevel].Accuracy.Count - 1)
+                TotalGrades += 100;
+        }
+        for (int i = 0; i < LevelManager.LevelList[CurrentLevel].TimeTaken.Count; i++)
+        {
+            if (Timer.CurrentTime > LevelManager.LevelList[CurrentLevel].TimeTaken[i])
+            { TotalGrades += i; break; }
+            if (i == LevelManager.LevelList[CurrentLevel].TimeTaken.Count - 1)
+                TotalGrades += 100;
+        }
+        for (int i = 0; i < LevelManager.LevelList[CurrentLevel].Cuts.Count; i++)
+        {
+            if (Slicing.CutCount > LevelManager.LevelList[CurrentLevel].Cuts[i])
+            { TotalGrades += i; break; }
+            if (i == LevelManager.LevelList[CurrentLevel].Cuts.Count - 1)
+                TotalGrades += 100;
+        }
+
+
+
+        print(TotalGrades);
+    }
 }

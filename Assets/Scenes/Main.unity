@@ -2314,7 +2314,7 @@ GameObject:
   - component: {fileID: 1351679695}
   - component: {fileID: 1351679694}
   - component: {fileID: 1351679698}
-  m_Layer: 0
+  m_Layer: 4
   m_Name: Marble
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2668,6 +2668,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Accuracy: 0
+  TotalAccuracy: 0
 --- !u!114 &1551380616
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -39,8 +39,6 @@ public class DualContouring : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.H))
                 Target.SetActive(!Target.activeSelf);
-            if (Input.GetKeyDown(KeyCode.Return))
-                ResetMarble();
         }
     }
 
@@ -65,7 +63,7 @@ public class DualContouring : MonoBehaviour
         
     }
 
-    void ResetMarble()
+    public void ResetMarble()
     {
         Density = new float[MDims.x, MDims.y, MDims.z];
         transform.parent.rotation = quaternion.identity;

@@ -8,10 +8,11 @@ public class SculptureCheckScript : MonoBehaviour
     GameObject Marble;
     Color GoodColour = Color.darkBlue;
     public float Accuracy = 0;
+    public float TotalAccuracy;
 
     void Start()
     {
-        CheckTarget(LayerMask.GetMask("Xray"));
+        //CheckTarget(LayerMask.GetMask("Xray"));
         Marble = GameObject.Find("Marble");
     }
 
@@ -19,6 +20,17 @@ public class SculptureCheckScript : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public void FullCheck()
+    {
+        CheckTarget(LayerMask.GetMask("Xray"));
+        SecondCheck();
+        if (TotalAccuracy != 0)
+            TotalAccuracy = (TotalAccuracy + Accuracy) / 2;
+        else 
+            TotalAccuracy = Accuracy;
+        print(TotalAccuracy);
     }
 
     public void SecondCheck()
@@ -30,7 +42,7 @@ public class SculptureCheckScript : MonoBehaviour
         Marble.AddComponent<MeshCollider>().convex = true;
 
         float HitCountGoal = TargetHitCount;
-        CheckTarget(LayerMask.GetMask("Marble"));
+        CheckTarget(LayerMask.GetMask("Water"));
 
         print($"Goal: {HitCountGoal} :: Attempt: {TargetHitCount}");
 
@@ -53,16 +65,16 @@ public class SculptureCheckScript : MonoBehaviour
                 { }//Debug.DrawRay(StartPos, Vector3.forward, Color.red, 999); }
                 
             }
-        /*
+        
         for (int x = 0; x < 20; x++) 
             for (int y = 0; y < 20; y++)
             {
                 Vector3 StartPos = new Vector3(-2f , 3f - (y * 0.14f), -6.2f + (x * 0.1f));
                 RaycastHit hit;
                 if (Physics.Raycast(StartPos, Vector3.right, out hit, Mathf.Infinity, TarLayer))
-                { print(hit.point); Debug.DrawRay(StartPos, Vector3.right * hit.distance, Color.darkBlue, 999); TargetHitCount++; }
+                {  TargetHitCount++; }
                 else
-                { print("hi"); Debug.DrawRay(StartPos, Vector3.right, Color.red, 999); }
+                { }
             }
         for (int x = 0; x < 20; x++) 
             for (int y = 0; y < 20; y++)
@@ -70,11 +82,11 @@ public class SculptureCheckScript : MonoBehaviour
                 Vector3 StartPos = new Vector3(-0.95f + (x * 0.1f), 5, -4.3f - (y * 0.1f));
                 RaycastHit hit;
                 if (Physics.Raycast(StartPos, Vector3.down, out hit, Mathf.Infinity, TarLayer))
-                { print(hit.point); Debug.DrawRay(StartPos, Vector3.down * hit.distance, Color.darkBlue, 999); TargetHitCount++; }
+                {  TargetHitCount++; }
                 else
-                { print("hi"); Debug.DrawRay(StartPos, Vector3.down, Color.red, 999); }
+                {  }
             }
-        */
+        
         print(TargetHitCount);
         GoodColour = Color.green;
     }
