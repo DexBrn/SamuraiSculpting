@@ -13,13 +13,15 @@ public class Dialogue : MonoBehaviour
     bool WritingText = false;
     int CurrentText;
 
+    LevelManager LevelManager;
+
     public List<string> TextList = new List<string>();
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-
+        LevelManager = GetComponent<LevelManager>();
         StartCoroutine(WriteText(TextList[CurrentText]));
     }
 
@@ -37,7 +39,7 @@ public class Dialogue : MonoBehaviour
             {
                 CurrentText++;
                 if (CurrentText >= TextList.Count)
-                { DialogueBox.transform.parent.gameObject.SetActive(false); LevelSelect.SetActive(true); return; }
+                { DialogueBox.transform.parent.gameObject.SetActive(false); LevelSelect.SetActive(true); LevelManager.PopulateLevelGrades(); return; }
                 StartCoroutine(WriteText(TextList[CurrentText]));
             }
         }

@@ -25,6 +25,8 @@ public class Slicing : MonoBehaviour
     float CurRotation;
     public float CutCount = 0;
 
+    bool CanAttack = true;
+
     public Material MarbleMat;
     TextureRegion Region;
 
@@ -64,22 +66,7 @@ public class Slicing : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.F) || Input.GetMouseButtonDown(0))
             {
                 StartCoroutine(SliceVisual());
-                var islands = DCScript.FindIslands();
-                //print(islands);
-                List<Vector3Int> mainIsland = islands[0];
-
-                foreach (var island in islands)
-                {
-                    if (island.Count > mainIsland.Count)
-                        mainIsland = island;
-                    
-                }
-                foreach (var island in islands)
-                {
-                    if (island == mainIsland) continue;
-
-                    DCScript.CreateDebris(island);
-                }
+                
                 CutCount++;
                 Timer.TimerOn = true;
             }
@@ -301,14 +288,20 @@ public class Slicing : MonoBehaviour
 
     IEnumerator SliceVisual()
     {
-        ViewModel.GetComponent<Animator>().enabled = true;
-        ViewModel.GetComponent<Animator>().SetBool("IsCutting", true);
-        yield return new WaitForSeconds(0.22f);
-        DCScript.Slice(Sword.transform.position - Sword.transform.up * 2, Sword.transform.position + Sword.transform.up * 2);
-        yield return new WaitForSeconds(0.09f);
-        ViewModel.GetComponent<Animator>().SetBool("IsCutting", false);
-        yield return new WaitForSeconds(.59f);
-        ViewModel.GetComponent<Animator>().enabled = false;
+        if (CanAttack)
+        {
+            CanAttack = false;
+            ViewModel.GetComponent<Animator>().enabled = true;
+            ViewModel.GetComponent<Animator>().SetBool("IsCutting", true);
+            yield return new WaitForSeconds(0.22f);
+            DCScript.Slice(Sword.transform.position - Sword.transform.up * 2, Sword.transform.position + Sword.transform.up * 2);
+            yield return new WaitForSeconds(0.09f);
+            ViewModel.GetComponent<Animator>().SetBool("IsCutting", false);
+            yield return new WaitForSeconds(.59f);
+            ViewModel.GetComponent<Animator>().enabled = false;
+            CanAttack = true;
+        }
+        
 
     }
 

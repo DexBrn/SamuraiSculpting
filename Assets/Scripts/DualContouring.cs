@@ -499,6 +499,8 @@ public class DualContouring : MonoBehaviour
         // Add physics
         var rb = debris.AddComponent<Rigidbody>();
         //rb.mass = island.Count * 0.01f;
+        if (!debris.GetComponent<BoxCollider>())
+            debris.AddComponent<BoxCollider>();
         debris.GetComponent<BoxCollider>().size /= 10;
         rb.mass = 1f;
         rb.AddForce((Vector3.up + Vector3.right) * 2 , ForceMode.Impulse);
@@ -560,20 +562,37 @@ public class DualContouring : MonoBehaviour
                     Vector3 Pos = new Vector3(x, y, z);
 
                     float PlaneDistance = Plane.GetDistanceToPoint(Pos);
-                    /*
-                    if (PlaneDistance < 1f)
+                    
+                    if (Mathf.Abs(PlaneDistance) < 1f)
                     {
                         Density[x, y, z] = -100;
                     }
-                    */
+                    /*
+                    print(PlaneDistance);
                     if (PositiveSide > NegativeSide)
                         Density[x, y, z ] = Mathf.Min(Density[x,y,z], PlaneDistance);
                     else
                         Density[x, y, z] = Mathf.Min(Density[x, y, z], -PlaneDistance);
-
+                    */
                     
                 }
         GenerateMesh();
+        var islands = FindIslands();
+        //print(islands);
+        List<Vector3Int> mainIsland = islands[0];
+
+        foreach (var island in islands)
+        {
+            if (island.Count > mainIsland.Count)
+                mainIsland = island;
+
+        }
+        foreach (var island in islands)
+        {
+            if (island == mainIsland) continue;
+
+            CreateDebris(island);
+        }
     }
     
     

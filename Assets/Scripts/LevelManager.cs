@@ -13,6 +13,7 @@ public class LevelManager : MonoBehaviour
     ResultsScreen RSScript;
     SculptureCheckScript SCScript;
 
+    public Transform LevelGrid;
     public TMP_Text LevelNameObj;
     public TMP_Text LevelDescriptionObj;
     public TMP_Text AccGradeObj;
@@ -23,6 +24,15 @@ public class LevelManager : MonoBehaviour
 
     GameObject CurrentTarget;
     int CurrentTargetIndex;
+
+    public SaveFile SaveFile;
+
+    public string[] PossibleGrades;
+    public string[] PossibleFinalGrades;
+    public Color[] GradeColours;
+    public Color[] FinalGradeColours;
+
+
 
     void Awake()
     {
@@ -37,11 +47,21 @@ public class LevelManager : MonoBehaviour
             DCScript.Target = CurrentTarget;
             CurrentTargetIndex++;
         }
+        else
+        {
+            SaveFile = SaveFile.CreateFromPlayerPrefs();
+            if (SaveFile == null)
+            {
+                print("Created New Save");
+                SaveFile = new SaveFile();
+                SaveFile.SaveToPlayerPrefs();
+            }
+        }
     }
 
     void Update()
     {
-        if (Input.GetKey(KeyCode.Return))
+        if (Input.GetKeyDown(KeyCode.Return))
         {
             if (CurrentTargetIndex == 3)
             { RSScript.OpenResultsScreen(); return; }
@@ -54,6 +74,12 @@ public class LevelManager : MonoBehaviour
             CurrentTargetIndex++;
             
         }
+
+        if (SceneManager.GetActiveScene() == SceneManager.GetSceneByName("Main"))
+            if (Input.GetKeyDown(KeyCode.R))
+                SceneManager.LoadScene("Main");
+            else if (Input.GetKeyDown(KeyCode.Escape))
+                SceneManager.LoadScene("Caravan Talent Agent");
     }
 
 
@@ -61,6 +87,26 @@ public class LevelManager : MonoBehaviour
     {
         LevelNameObj.text = LevelList[LevelId].Name;
         LevelDescriptionObj.text = LevelList[LevelId].Description;
+
+        if (SaveFile.AllAchievedGrades[(LevelId + 1) * 4 - 4 + 0] != 0)
+            AccGradeObj.text = $"<color=#{ColorUtility.ToHtmlStringRGB(GradeColours[SaveFile.AllAchievedGrades[(LevelId + 1) * 4 - 4 + 0] - 1])}>{PossibleGrades[SaveFile.AllAchievedGrades[(LevelId + 1) * 4 - 4 + 0] - 1]}";
+        else
+            AccGradeObj.text = "";
+
+        if (SaveFile.AllAchievedGrades[(LevelId + 1) * 4 - 4 + 1] != 0)
+            TimeGradeObj.text = $"<color=#{ColorUtility.ToHtmlStringRGB(GradeColours[SaveFile.AllAchievedGrades[(LevelId + 1) * 4 - 4 + 1] - 1])}>{PossibleGrades[SaveFile.AllAchievedGrades[(LevelId + 1) * 4 - 4 + 1] - 1]}"; 
+        else
+            TimeGradeObj.text = "";
+
+        if (SaveFile.AllAchievedGrades[(LevelId + 1) * 4 - 4 + 2] != 0)
+            CutGradeObj.text = $"<color=#{ColorUtility.ToHtmlStringRGB(GradeColours[SaveFile.AllAchievedGrades[(LevelId + 1) * 4 - 4 + 2] - 1])}>{PossibleGrades[SaveFile.AllAchievedGrades[(LevelId + 1) * 4 - 4 + 2] - 1]}";
+        else
+            CutGradeObj.text = "";
+
+
+
+
+
         PlayerPrefs.SetInt("SelectedLevel", LevelId);
     }
 
@@ -68,5 +114,38 @@ public class LevelManager : MonoBehaviour
     {
         SceneManager.LoadScene("Main");
     }
+
+    public void PopulateLevelGrades()
+    {
+        for (int i = 0; i < LevelGrid.childCount; i++)
+        {
+            if (SaveFile.AllAchievedGrades[(i + 1) * 4 - 4 + 3] != 0)
+                LevelGrid.GetChild(i).GetChild(1).GetComponent<TMP_Text>().text = $"<color=#{ColorUtility.ToHtmlStringRGB(FinalGradeColours[SaveFile.AllAchievedGrades[(i + 1) * 4 - 4 + 3] - 1])}>{PossibleFinalGrades[SaveFile.AllAchievedGrades[(i + 1) * 4 - 4 + 3] - 1]}"; 
+            else
+                LevelGrid.GetChild(i).GetChild(1).GetComponent<TMP_Text>().text = "";
+        }
+
+
+
+    }
+
+
+    public void NextLevel()
+    {
+        PlayerPrefs.SetInt("SelectedLevel", CurrentLevel+1);
+        SceneManager.LoadScene("Main");
+    }
+    
+    public void RetryLevel()
+    {
+        SceneManager.LoadScene("Main");
+    }
+     
+    public void GoToMenu()
+    {
+        SceneManager.LoadScene("Caravan Talent Agent");
+    }
+
+
 
 }

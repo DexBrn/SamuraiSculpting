@@ -30,7 +30,6 @@ public class SculptureCheckScript : MonoBehaviour
             TotalAccuracy = (TotalAccuracy + Accuracy) / 2;
         else 
             TotalAccuracy = Accuracy;
-        print(TotalAccuracy);
     }
 
     public void SecondCheck()
@@ -44,10 +43,8 @@ public class SculptureCheckScript : MonoBehaviour
         float HitCountGoal = TargetHitCount;
         CheckTarget(LayerMask.GetMask("Water"));
 
-        print($"Goal: {HitCountGoal} :: Attempt: {TargetHitCount}");
 
         Accuracy = (Mathf.Min(TargetHitCount, HitCountGoal) / Mathf.Max(TargetHitCount, HitCountGoal)) * 100;
-        print(Accuracy);
     }
 
 
@@ -87,7 +84,6 @@ public class SculptureCheckScript : MonoBehaviour
                 {  }
             }
         
-        print(TargetHitCount);
         GoodColour = Color.green;
     }
 

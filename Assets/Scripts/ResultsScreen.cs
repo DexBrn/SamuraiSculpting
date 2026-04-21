@@ -11,6 +11,9 @@ public class ResultsScreen : MonoBehaviour
     public TMP_Text TimeTakenText;
     public TMP_Text CutCountText;
     public TMP_Text GradeText;
+    public GameObject ContinueButton;
+    public GameObject RetryButton;
+    public GameObject MenuButton;
 
     public float Accuracy;
     public float TimeTaken;
@@ -47,6 +50,13 @@ public class ResultsScreen : MonoBehaviour
         //SaveFile.SaveToPlayerPrefs();
         SaveFile = SaveFile.CreateFromPlayerPrefs();
 
+        if (SaveFile == null)
+        {
+            print("Created New Save");
+            SaveFile = new SaveFile();
+            SaveFile.SaveToPlayerPrefs();
+        }
+
     }
 
 
@@ -80,6 +90,10 @@ public class ResultsScreen : MonoBehaviour
         yield return new WaitForSeconds(1);
         GradeText.enabled = true;
         GradeText.text = $"<color=#{ColorUtility.ToHtmlStringRGB(FinalGradeColours[TotalGrades])}>{PossibleFinalGrades[TotalGrades]}</color>";
+        yield return new WaitForSeconds(1);
+        ContinueButton.SetActive(true);
+        RetryButton.SetActive(true);
+        MenuButton.SetActive(true);
     }
 
     public void CheckGrades()
@@ -120,6 +134,6 @@ public class ResultsScreen : MonoBehaviour
 
         //Make It so now it only changes if new grade is better
 
-        print(TotalGrades);
+       
     }
 }
