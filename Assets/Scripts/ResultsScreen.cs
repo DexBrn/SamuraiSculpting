@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using System.Collections;
 using static UnityEngine.Rendering.DebugUI;
+using System.Linq;
 public class ResultsScreen : MonoBehaviour
 {
 
@@ -18,10 +19,21 @@ public class ResultsScreen : MonoBehaviour
 
     int TotalGrades;
 
+    public string[] PossibleGrades;
+    public string[] PossibleFinalGrades;
+    public Color[] GradeColours;
+    public Color[] FinalGradeColours;
+
+    int AccGrade;
+    int CutsGrade;
+    int TimeGrade;
+
+
     SculptureCheckScript SCS;
     Slicing Slicing;
     Timer Timer;
     LevelManager LevelManager;
+    public SaveFile SaveFile;
 
     void Start()
     {
@@ -29,19 +41,23 @@ public class ResultsScreen : MonoBehaviour
         Slicing = GetComponent<Slicing>();
         Timer = GetComponent<Timer>();
         LevelManager = GetComponent<LevelManager>();
+
+
+        //SaveFile = new SaveFile();
+        //SaveFile.SaveToPlayerPrefs();
+        SaveFile = SaveFile.CreateFromPlayerPrefs();
+        for (int i = 0; i < SaveFile.AllAchievedGrades.Length; i++)
+        {
+            print(SaveFile.AllAchievedGrades[i]);
+        }
+
     }
 
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.RightShift))
-        {
-            return;
-            SCS.SecondCheck();
-            StartCoroutine(RevealResults());
-            Timer.TimerOn = false;
 
-        }
+
     }
 
     public void OpenResultsScreen()
@@ -58,16 +74,16 @@ public class ResultsScreen : MonoBehaviour
         ResultsPanel.SetActive(true);
         yield return new WaitForSeconds(1);
         AccuracyText.enabled = true;
-        AccuracyText.text = $"Accuracy: {Mathf.RoundToInt(SCS.TotalAccuracy)}%";
+        AccuracyText.text = $"Accuracy: {Mathf.RoundToInt(SCS.TotalAccuracy)}% <color=#{ColorUtility.ToHtmlStringRGB(GradeColours[AccGrade])}>{PossibleGrades[AccGrade]}</color>";
         yield return new WaitForSeconds(1);
         TimeTakenText.enabled = true;
-        TimeTakenText.text = $"Time: {Mathf.RoundToInt(Timer.CurrentTime)}s";
+        TimeTakenText.text = $"Time: {Mathf.RoundToInt(Timer.CurrentTime)}s <color=#{ColorUtility.ToHtmlStringRGB(GradeColours[TimeGrade])}>{PossibleGrades[TimeGrade]}</color>";
         yield return new WaitForSeconds(1);
         CutCountText.enabled = true;
-        CutCountText.text = $"Cuts: {Slicing.CutCount}";
+        CutCountText.text = $"Cuts: {Slicing.CutCount} <color=#{ColorUtility.ToHtmlStringRGB(GradeColours[CutsGrade])}>{PossibleGrades[CutsGrade]}</color>";
         yield return new WaitForSeconds(1);
         GradeText.enabled = true;
-        GradeText.text = $"S";
+        GradeText.text = $"<color=#{ColorUtility.ToHtmlStringRGB(FinalGradeColours[TotalGrades])}>{PossibleFinalGrades[TotalGrades]}</color>";
     }
 
     public void CheckGrades()
@@ -77,26 +93,32 @@ public class ResultsScreen : MonoBehaviour
         for (int i = 0; i < LevelManager.LevelList[CurrentLevel].Accuracy.Count; i++)
         {
             if (SCS.TotalAccuracy > LevelManager.LevelList[CurrentLevel].Accuracy[i])
-            { TotalGrades += i; break; }
+            { TotalGrades += i; AccGrade = i; break; }
             if (i == LevelManager.LevelList[CurrentLevel].Accuracy.Count - 1)
-                TotalGrades += 100;
+            { TotalGrades += 5; AccGrade = 5; }
         }
         for (int i = 0; i < LevelManager.LevelList[CurrentLevel].TimeTaken.Count; i++)
         {
-            if (Timer.CurrentTime > LevelManager.LevelList[CurrentLevel].TimeTaken[i])
-            { TotalGrades += i; break; }
+            if (Timer.CurrentTime < LevelManager.LevelList[CurrentLevel].TimeTaken[i])
+            { TotalGrades += i; TimeGrade = i; break; }
             if (i == LevelManager.LevelList[CurrentLevel].TimeTaken.Count - 1)
-                TotalGrades += 100;
+            { TotalGrades += 5; TimeGrade = 5; }
         }
         for (int i = 0; i < LevelManager.LevelList[CurrentLevel].Cuts.Count; i++)
         {
-            if (Slicing.CutCount > LevelManager.LevelList[CurrentLevel].Cuts[i])
-            { TotalGrades += i; break; }
+            if (Slicing.CutCount < LevelManager.LevelList[CurrentLevel].Cuts[i])
+            { TotalGrades += i; CutsGrade = i; break; }
             if (i == LevelManager.LevelList[CurrentLevel].Cuts.Count - 1)
-                TotalGrades += 100;
+            { TotalGrades += 5; CutsGrade = 5; }
         }
 
+        SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4] = AccGrade+1;
+        SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4 + 1] = TimeGrade+1;
+        SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4 + 2] = CutsGrade + 1;
+        SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4 + 3] = TotalGrades + 1;
+        SaveFile.SaveToPlayerPrefs();
 
+        //Make It so now it only changes if new grade is better
 
         print(TotalGrades);
     }
