@@ -46,10 +46,6 @@ public class ResultsScreen : MonoBehaviour
         //SaveFile = new SaveFile();
         //SaveFile.SaveToPlayerPrefs();
         SaveFile = SaveFile.CreateFromPlayerPrefs();
-        for (int i = 0; i < SaveFile.AllAchievedGrades.Length; i++)
-        {
-            print(SaveFile.AllAchievedGrades[i]);
-        }
 
     }
 
@@ -112,10 +108,14 @@ public class ResultsScreen : MonoBehaviour
             { TotalGrades += 5; CutsGrade = 5; }
         }
 
-        SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4] = AccGrade+1;
-        SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4 + 1] = TimeGrade+1;
-        SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4 + 2] = CutsGrade + 1;
-        SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4 + 3] = TotalGrades + 1;
+        if (SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4] > AccGrade+1 || SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4] == 0)
+            SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4] = AccGrade+1;
+        if (SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4+1] > TimeGrade + 1 || SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4+1] == 0)
+            SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4 + 1] = TimeGrade+1;
+        if (SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4 + 2] > CutsGrade + 1 || SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4 + 2] == 0)
+            SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4 + 2] = CutsGrade + 1;
+        if (SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4 + 3] > TotalGrades + 1 || SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4 + 3] == 0)
+            SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4 + 3] = TotalGrades + 1;
         SaveFile.SaveToPlayerPrefs();
 
         //Make It so now it only changes if new grade is better
