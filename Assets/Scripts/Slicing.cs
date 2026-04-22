@@ -141,8 +141,8 @@ public class Slicing : MonoBehaviour
                 //print(centre);
                 // Apply
                 DCScript.ApplyTantoCut(centre, halfSize, rotation);
-
-                var islands = DCScript.FindIslands();
+                /*
+                /var islands = DCScript.FindIslands();
                 //print(islands);
                 List<Vector3Int> mainIsland = islands[0];
 
@@ -158,6 +158,7 @@ public class Slicing : MonoBehaviour
 
                     DCScript.CreateDebris(island);
                 }
+                */
                 CutCount++;
                 Timer.TimerOn = true;
             }   

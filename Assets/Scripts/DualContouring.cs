@@ -1,4 +1,6 @@
+using NUnit;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -11,6 +13,7 @@ public class DualContouring : MonoBehaviour
     public float IsoLevel = 0;
 
     float[,,] Density;
+    bool[,,] Visited;
 
     MeshFilter MeshFilter;
     Mesh Mesh;
@@ -21,6 +24,7 @@ public class DualContouring : MonoBehaviour
     void Start()
     {
         Density = new float[MDims.x, MDims.y, MDims.z];
+        Visited = new bool[MDims.x, MDims.y, MDims.z];
         MeshFilter = GetComponent<MeshFilter>();
         //GameObject Sword = GameObject.Find("Sword");
 
@@ -403,41 +407,42 @@ public class DualContouring : MonoBehaviour
     }
 
 
-    public List<List<Vector3Int>> FindIslands()
+    public List<List<Vector3Int>> FindIslands(int minX, int MaxX, int minY, int MaxY, int minZ, int MaxZ)
     {
-        bool[,,] visited = new bool[MDims.x, MDims.y, MDims.z];
+        System.Array.Clear(Visited, 0, Visited.Length);
+
         List<List<Vector3Int>> islands = new List<List<Vector3Int>>();
 
-        for (int x = 0; x < MDims.x; x++)
-            for (int y = 0; y < MDims.y; y++)
-                for (int z = 0; z < MDims.z; z++)
+        for (int x = minX; x <= MaxX; x++)
+            for (int y = minY; y <= MaxY; y++)
+                for (int z = minZ; z <= MaxZ; z++)
                 {
-                    if (visited[x, y, z]) continue;
+                    if (Visited[x, y, z]) continue;
                     if (Density[x, y, z] <= IsoLevel) continue;
 
                     List<Vector3Int> island = new List<Vector3Int>();
                     Queue<Vector3Int> queue = new Queue<Vector3Int>();
 
                     queue.Enqueue(new Vector3Int(x, y, z));
-                    visited[x, y, z] = true;
+                    Visited[x, y, z] = true;
 
                     while (queue.Count > 0)
                     {
-                        Vector3Int current = queue.Dequeue();
+                        var current = queue.Dequeue();
                         island.Add(current);
 
-                        foreach (Vector3Int dir in Directions)
+                        foreach (var dir in Directions)
                         {
-                            Vector3Int next = current + dir;
+                            var next = current + dir;
 
                             if (next.x < 0 || next.y < 0 || next.z < 0 ||
                                 next.x >= MDims.x || next.y >= MDims.y || next.z >= MDims.z)
                                 continue;
 
-                            if (visited[next.x, next.y, next.z]) continue;
+                            if (Visited[next.x, next.y, next.z]) continue;
                             if (Density[next.x, next.y, next.z] <= IsoLevel) continue;
 
-                            visited[next.x, next.y, next.z] = true;
+                            Visited[next.x, next.y, next.z] = true;
                             queue.Enqueue(next);
                         }
                     }
@@ -459,52 +464,45 @@ public class DualContouring : MonoBehaviour
 
 
 
-    public void CreateDebris(List<Vector3Int> island)
+    void CreateDebris(List<Vector3Int> island)
     {
-        GameObject debris = Instantiate(gameObject);
+        GameObject debris = new GameObject("Debris");
 
-        debris.transform.position = Sword.transform.position;
+        debris.transform.position = transform.position;
         debris.transform.rotation = transform.rotation;
+        debris.transform.localScale = transform.localScale;
+        debris.AddComponent<MeshRenderer>().material = GetComponent<MeshRenderer>().material;
+        debris.AddComponent<DebrisCleanup>();
 
         var dc = debris.AddComponent<DualContouring>();
-        debris.AddComponent<DebrisCleanup>();
-        //var dc = debris.AddComponent<DualContouring>();
-        //
+
         dc.MDims = MDims;
         dc.IsoLevel = IsoLevel;
 
         dc.Density = new float[MDims.x, MDims.y, MDims.z];
 
-        
+        // clear
         for (int x = 0; x < MDims.x; x++)
             for (int y = 0; y < MDims.y; y++)
                 for (int z = 0; z < MDims.z; z++)
-                {
-                    dc.Density[x, y, z] = -100;
-                }
-        
+                    dc.Density[x, y, z] = -100f;
 
-        // Copy ONLY this island
+        // copy island
         foreach (var voxel in island)
         {
-            //print(voxel);
             dc.Density[voxel.x, voxel.y, voxel.z] = Density[voxel.x, voxel.y, voxel.z];
-
-            // Remove from original
             Density[voxel.x, voxel.y, voxel.z] = -100f;
         }
 
         dc.GenerateMesh();
-        GenerateMesh();
-        // Add physics
+
         var rb = debris.AddComponent<Rigidbody>();
-        //rb.mass = island.Count * 0.01f;
-        if (!debris.GetComponent<BoxCollider>())
-            debris.AddComponent<BoxCollider>();
-        debris.GetComponent<BoxCollider>().size /= 10;
+        debris.AddComponent<BoxCollider>();
+
         rb.mass = 1f;
-        rb.AddForce((Vector3.up + Vector3.right) * 2 , ForceMode.Impulse);
+        rb.AddForce(UnityEngine.Random.onUnitSphere * 2f, ForceMode.Impulse);
     }
+
 
 
 
@@ -520,12 +518,6 @@ public class DualContouring : MonoBehaviour
     public void Slice(Vector3 StartPos, Vector3 EndPos)
     {
 
-
-
-        float PositiveSide = 0f;
-        float NegativeSide = 0f;
-
-
         StartPos = transform.InverseTransformPoint(StartPos);
         EndPos = transform.InverseTransformPoint(EndPos);
 
@@ -536,63 +528,68 @@ public class DualContouring : MonoBehaviour
 
         UnityEngine.Plane Plane = new UnityEngine.Plane(PlaneNormal, StartPos);
 
+        // --- BOUNDING BOX 
+        Vector3 Min = Vector3.Min(StartPos, EndPos) - Vector3.one * 2f;
+        Vector3 Max = Vector3.Max(StartPos, EndPos) + Vector3.one * 2f;
+
+        int MinX = Mathf.Clamp(Mathf.FloorToInt(Min.x), 0, MDims.x - 1);
+        int MaxX = Mathf.Clamp(Mathf.CeilToInt(Max.x), 0, MDims.x - 1);
+
+        int MinY = Mathf.Clamp(Mathf.FloorToInt(Min.y), 0, MDims.y - 1);
+        int MaxY = Mathf.Clamp(Mathf.CeilToInt(Max.y), 0, MDims.y - 1);
+
+        int MinZ = Mathf.Clamp(Mathf.FloorToInt(Min.z), 0, MDims.z - 1);
+        int MaxZ = Mathf.Clamp(Mathf.CeilToInt(Max.z), 0, MDims.z - 1);
 
 
-        for (int x = 0; x < MDims.x; x++)
-            for (int y = 0; y < MDims.y; y++)
-                for (int z = 0; z < MDims.z; z++)
-                {
-                    float d = Density[x,y,z];
+        print($"MaxX {MaxX}, x10 {MaxX * 10}, MaxZ {MaxZ}, x10 {MaxZ * 10}");
 
-                    if (d > IsoLevel)
-                    {
-                        Vector3 Pos = new Vector3(x, y, z);
+        MinX = 0;
+        MinZ = 0;
+        MaxX = MDims.x-1;
+        MaxZ = MDims.z-1;
 
-                        float PlaneDistance = Plane.GetDistanceToPoint(Pos);
 
-                        if (PlaneDistance > 0f) PositiveSide++;
-                        else NegativeSide++;
-                    }
-                }
 
-        for (int x = 0; x < MDims.x; x++)
-            for (int y = 0; y < MDims.y; y++)
-                for (int z = 0; z < MDims.z; z++)
+        //Apply cut only in region
+        for (int x = MinX; x <= MaxX; x++)
+            for (int y = MinY; y <= MaxY; y++)
+                for (int z = MinZ; z <= MaxZ; z++)
                 {
                     Vector3 Pos = new Vector3(x, y, z);
-
-                    float PlaneDistance = Plane.GetDistanceToPoint(Pos);
                     
+                    float PlaneDistance = Plane.GetDistanceToPoint(Pos);
+
+                    
+
                     if (Mathf.Abs(PlaneDistance) < 1f)
                     {
                         Density[x, y, z] = -100;
+                        //print($"Sliced at: {Pos} :: {PlaneDistance}");
                     }
-                    /*
-                    print(PlaneDistance);
-                    if (PositiveSide > NegativeSide)
-                        Density[x, y, z ] = Mathf.Min(Density[x,y,z], PlaneDistance);
-                    else
-                        Density[x, y, z] = Mathf.Min(Density[x, y, z], -PlaneDistance);
-                    */
                     
                 }
-        GenerateMesh();
-        var islands = FindIslands();
-        //print(islands);
-        List<Vector3Int> mainIsland = islands[0];
+        
+        
+        var islands = FindIslands(MinX, MaxX, MinY, MaxY, MinZ, MaxZ);
 
+        //Find Main Island
+        List<Vector3Int> mainIsland = islands[0];
         foreach (var island in islands)
         {
             if (island.Count > mainIsland.Count)
                 mainIsland = island;
 
         }
+        //Create Debris
         foreach (var island in islands)
         {
             if (island == mainIsland) continue;
 
             CreateDebris(island);
         }
+        
+        GenerateMesh();
     }
     
     
