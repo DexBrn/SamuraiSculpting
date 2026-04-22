@@ -1,19 +1,16 @@
-using NUnit;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Unity.Mathematics;
-using Unity.VisualScripting;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
-using static UnityEngine.EventSystems.EventTrigger;
+using System.Threading.Tasks;
+using System;
 
 public class DualContouring : MonoBehaviour
 {
     public Vector3Int MDims = new Vector3Int(64, 96, 64);
     public float IsoLevel = 0;
 
-    float[,,] Density;
+    public float[,,] Density;
     bool[,,] Visited;
 
     MeshFilter MeshFilter;
@@ -24,6 +21,14 @@ public class DualContouring : MonoBehaviour
 
     List<Vector3> Vertices = new List<Vector3>();
     List<int> Triangles = new List<int>();
+
+    private Vector3[] PointsBuffer = new Vector3[12];
+    private Vector3[] NormalsBuffer = new Vector3[12];
+
+    [ThreadStatic] private static float[] t_Cube;
+    [ThreadStatic] private static Vector3[] t_Points;
+    [ThreadStatic] private static Vector3[] t_Normals;
+
 
     void Start()
     {
@@ -119,6 +124,7 @@ public class DualContouring : MonoBehaviour
                 }
     }
 
+    /*
     void GenerateMesh()
     {
 
@@ -126,6 +132,11 @@ public class DualContouring : MonoBehaviour
         Triangles.Clear();
 
         int[,,] VertexIndices = new int[MDims.x, MDims.y, MDims.z];
+        int TotalCells = (MDims.x - 1) * (MDims.y - 1) * (MDims.z - 1);
+
+        Vector3[] vertexResults = new Vector3[TotalCells];
+        bool[] vertexValid = new bool[TotalCells];
+
 
         // Generate one vertex per cell that contains a surface crossing
         for (int x = 0; x < MDims.x - 1; x++)
@@ -149,10 +160,13 @@ public class DualContouring : MonoBehaviour
                     BuildQuads(x, y, z, VertexIndices, Triangles);
                 }
 
-        Mesh = new Mesh();
+        if (Mesh == null) Mesh = new Mesh();
         Mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
-        Mesh.vertices = Vertices.ToArray();
-        Mesh.triangles = Triangles.ToArray();
+        Mesh.Clear();
+        Mesh.SetVertices(Vertices);
+        Mesh.SetTriangles(Triangles, 0);
+        //Mesh.vertices = Vertices.ToArray();
+        //Mesh.triangles = Triangles.ToArray();
         Mesh.RecalculateNormals();
         if (name!= "Marble")
         {
@@ -163,6 +177,197 @@ public class DualContouring : MonoBehaviour
         MeshFilter.mesh = Mesh;
     }
 
+    */
+
+    public void GenerateMesh()
+    {
+        Vertices.Clear();
+        Triangles.Clear();
+
+        int[,,] VertexIndices = new int[MDims.x, MDims.y, MDims.z];
+        int totalCells = (MDims.x - 1) * (MDims.y - 1) * (MDims.z - 1);
+
+        // Compute vertices in parallel on background threads
+        Vector3[] vertexResults = new Vector3[totalCells];
+        bool[] vertexValid = new bool[totalCells];
+
+        Parallel.For(0, MDims.x - 1, x =>
+        {
+            for (int y = 0; y < MDims.y - 1; y++)
+                for (int z = 0; z < MDims.z - 1; z++)
+                {
+                    int idx = x * (MDims.y - 1) * (MDims.z - 1) + y * (MDims.z - 1) + z;
+                    Vector3 vertex;
+                    if (ProcessCellThreadSafe(x, y, z, out vertex))
+                    {
+                        vertexResults[idx] = vertex;
+                        vertexValid[idx] = true;
+                    }
+                }
+        });
+
+        // Back on main thread: collect valid vertices and build index map
+        for (int x = 0; x < MDims.x - 1; x++)
+            for (int y = 0; y < MDims.y - 1; y++)
+                for (int z = 0; z < MDims.z - 1; z++)
+                {
+                    int idx = x * (MDims.y - 1) * (MDims.z - 1) + y * (MDims.z - 1) + z;
+                    if (vertexValid[idx])
+                    {
+                        VertexIndices[x, y, z] = Vertices.Count;
+                        Vertices.Add(vertexResults[idx]);
+                    }
+                    else
+                        VertexIndices[x, y, z] = -1;
+                }
+
+        for (int x = 1; x < MDims.x - 2; x++)
+            for (int y = 1; y < MDims.y - 2; y++)
+                for (int z = 1; z < MDims.z - 2; z++)
+                    BuildQuads(x, y, z, VertexIndices, Triangles);
+
+        if (Mesh == null) { Mesh = new Mesh(); Mesh.MarkDynamic(); }
+        Mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+        Mesh.Clear();
+        Mesh.SetVertices(Vertices);
+        Mesh.SetTriangles(Triangles, 0);
+        //Mesh.RecalculateNormals();
+
+        if (name != "Marble")
+        {
+            DestroyImmediate(GetComponent<MeshFilter>());
+            MeshFilter = gameObject.AddComponent<MeshFilter>();
+        }
+
+        MeshFilter.mesh = Mesh;
+    }
+
+
+    // Thread-safe version of ProcessCell — no shared buffers, all locals
+    bool ProcessCellThreadSafe(int x, int y, int z, out Vector3 Vertex)
+    {
+        //float[] Cube = new float[8];
+        // First call on this thread: allocates. Every subsequent call: reuses.
+        if (t_Cube == null) t_Cube = new float[8];
+        if (t_Points == null) t_Points = new Vector3[12];
+        if (t_Normals == null) t_Normals = new Vector3[12];
+
+        // Now safe to use — no other thread touches these
+        float[] Cube = t_Cube;
+        Vector3[] Points = t_Points;
+        Vector3[] Normals = t_Normals;
+        int Count = 0;
+        for (int i = 0; i < 8; i++)
+        {
+            Vector3Int Corner = new Vector3Int(x, y, z) + Corners[i];
+            Cube[i] = Density[Corner.x, Corner.y, Corner.z];
+        }
+
+        bool HasInside = false;
+        bool HasOutside = false;
+        for (int i = 0; i < 8; i++)
+        {
+            if (Cube[i] < IsoLevel) HasInside = true;
+            else HasOutside = true;
+        }
+
+        if (!(HasInside && HasOutside))
+        {
+            Vertex = Vector3.zero;
+            return false;
+        }
+
+        // Stack-allocated fixed size — avoids List<> heap allocation per cell
+        //Vector3[] Points = new Vector3[12];
+        //Vector3[] Normals = new Vector3[12];
+
+        for (int i = 0; i < 12; i++)
+        {
+            int a = Edges[i, 0];
+            int b = Edges[i, 1];
+            float da = Cube[a];
+            float db = Cube[b];
+
+            if ((da < IsoLevel) != (db < IsoLevel))
+            {
+                Vector3 Point1 = new Vector3(x, y, z) + Corners[a];
+                Vector3 Point2 = new Vector3(x, y, z) + Corners[b];
+                float t = (IsoLevel - da) / (db - da);
+                Points[Count] = Vector3.Lerp(Point1, Point2, t);
+                Normals[Count] = CalculateNormal(Points[Count]);
+                Count++;
+            }
+        }
+
+        if (Count == 0)
+        {
+            Vertex = Vector3.zero;
+            return false;
+        }
+
+        Vertex = SolveQEFThreadSafe(Points, Normals, Count, x, y, z);
+        return true;
+    }
+
+    // Thread-safe QEF — takes array + count instead of List<>
+    Vector3 SolveQEFThreadSafe(Vector3[] Points, Vector3[] Normals, int Count, int CellX, int CellY, int CellZ)
+    {
+        Vector3 MassPoint = Vector3.zero;
+        for (int i = 0; i < Count; i++)
+            MassPoint += Points[i];
+        MassPoint /= Count;
+
+        float ATA00 = 0, ATA01 = 0, ATA02 = 0;
+        float ATA11 = 0, ATA12 = 0, ATA22 = 0;
+        float ATb0 = 0, ATb1 = 0, ATb2 = 0;
+
+        for (int i = 0; i < Count; i++)
+        {
+            Vector3 N = Normals[i];
+            Vector3 P = Points[i] - MassPoint;
+
+            ATA00 += N.x * N.x; ATA01 += N.x * N.y; ATA02 += N.x * N.z;
+            ATA11 += N.y * N.y; ATA12 += N.y * N.z;
+            ATA22 += N.z * N.z;
+
+            float B = Vector3.Dot(N, P);
+            ATb0 += N.x * B;
+            ATb1 += N.y * B;
+            ATb2 += N.z * B;
+        }
+
+        float Det = ATA00 * (ATA11 * ATA22 - ATA12 * ATA12)
+                   - ATA01 * (ATA01 * ATA22 - ATA12 * ATA02)
+                   + ATA02 * (ATA01 * ATA12 - ATA11 * ATA02);
+
+        Vector3 Result;
+        if (Mathf.Abs(Det) < 1e-4f)
+        {
+            Result = MassPoint;
+        }
+        else
+        {
+            float InvDet = 1f / Det;
+            Vector3 Offset;
+            Offset.x = InvDet * (ATb0 * (ATA11 * ATA22 - ATA12 * ATA12)
+                               + ATb1 * (ATA02 * ATA12 - ATA01 * ATA22)
+                               + ATb2 * (ATA01 * ATA12 - ATA11 * ATA02));
+            Offset.y = InvDet * (ATb0 * (ATA12 * ATA02 - ATA01 * ATA22)
+                               + ATb1 * (ATA00 * ATA22 - ATA02 * ATA02)
+                               + ATb2 * (ATA01 * ATA02 - ATA00 * ATA12));
+            Offset.z = InvDet * (ATb0 * (ATA01 * ATA12 - ATA02 * ATA11)
+                               + ATb1 * (ATA02 * ATA01 - ATA00 * ATA12)
+                               + ATb2 * (ATA00 * ATA11 - ATA01 * ATA01));
+
+            Result = MassPoint + Offset;
+        }
+
+        Result.x = Mathf.Clamp(Result.x, CellX, CellX + 1f);
+        Result.y = Mathf.Clamp(Result.y, CellY, CellY + 1f);
+        Result.z = Mathf.Clamp(Result.z, CellZ, CellZ + 1f);
+
+        return Result;
+    }
 
 
     bool ProcessCell(int x, int y, int z, out Vector3 Vertex)
@@ -471,7 +676,7 @@ public class DualContouring : MonoBehaviour
 
 
 
-    void CreateDebris(List<Vector3Int> island)
+    public void CreateDebris(List<Vector3Int> island)
     {
         GameObject debris = new GameObject("Debris");
 
@@ -622,6 +827,7 @@ public class DualContouring : MonoBehaviour
         int MinY = Mathf.Clamp(Mathf.FloorToInt(Mathf.Min(StartPos.y, EndPos.y) - 2f), 0, MDims.y - 1);
         int MaxY = Mathf.Clamp(Mathf.CeilToInt(Mathf.Max(StartPos.y, EndPos.y) + 2f), 0, MDims.y - 1);
 
+
         // Carve pass — spread across frames by yielding every few rows
         for (int x = 0; x < MDims.x; x++)
         {
@@ -634,10 +840,9 @@ public class DualContouring : MonoBehaviour
                 }
 
             // Yield every 8 columns to spread load across frames
-            if (x % 8 == 0) yield return null;
+            if (x % 1 == 0) yield return null;
         }
 
-        // Island detection — also spread across frames
         var islands = FindIslands(0, MDims.x - 1, MinY, MaxY, 0, MDims.z - 1);
         yield return null;
 
@@ -647,16 +852,83 @@ public class DualContouring : MonoBehaviour
             foreach (var island in islands)
                 if (island.Count > mainIsland.Count)
                     mainIsland = island;
-
+            //int DebrisMade = 0;
             foreach (var island in islands)
             {
                 if (island == mainIsland) continue;
+                //if (DebrisMade >= 2) break;
                 CreateDebris(island);
-                yield return null; // Spread debris creation across frames
+                //DebrisMade++;
+                yield return null;
             }
         }
 
-        GenerateMesh();
+        // Run heavy mesh computation on background thread,
+        // then apply to mesh on main thread
+        var vertexResults = new Vector3[(MDims.x - 1) * (MDims.y - 1) * (MDims.z - 1)];
+        var vertexValid = new bool[(MDims.x - 1) * (MDims.y - 1) * (MDims.z - 1)];
+
+        var task = Task.Run(() =>
+        {
+            Parallel.For(0, MDims.x - 1, x =>
+            {
+                for (int y = 0; y < MDims.y - 1; y++)
+                    for (int z = 0; z < MDims.z - 1; z++)
+                    {
+                        int idx = x * (MDims.y - 1) * (MDims.z - 1) + y * (MDims.z - 1) + z;
+                        Vector3 vertex;
+                        if (ProcessCellThreadSafe(x, y, z, out vertex))
+                        {
+                            vertexResults[idx] = vertex;
+                            vertexValid[idx] = true;
+                        }
+                    }
+            });
+        });
+
+        // Wait for background task without blocking main thread
+        while (!task.IsCompleted)
+            yield return null;
+
+        if (task.IsFaulted)
+        {
+            UnityEngine.Debug.LogException(task.Exception);
+            yield break;
+        }
+
+        // Collect results and build mesh back on main thread
+        Vertices.Clear();
+        Triangles.Clear();
+        int[,,] VertexIndices = new int[MDims.x, MDims.y, MDims.z];
+
+        for (int x = 0; x < MDims.x - 1; x++)
+            for (int y = 0; y < MDims.y - 1; y++)
+                for (int z = 0; z < MDims.z - 1; z++)
+                {
+                    int idx = x * (MDims.y - 1) * (MDims.z - 1) + y * (MDims.z - 1) + z;
+                    if (vertexValid[idx])
+                    {
+                        VertexIndices[x, y, z] = Vertices.Count;
+                        Vertices.Add(vertexResults[idx]);
+                    }
+                    else
+                        VertexIndices[x, y, z] = -1;
+                }
+
+        for (int x = 1; x < MDims.x - 2; x++)
+            for (int y = 1; y < MDims.y - 2; y++)
+                for (int z = 1; z < MDims.z - 2; z++)
+                    BuildQuads(x, y, z, VertexIndices, Triangles);
+
+        if (Mesh == null) Mesh = new Mesh();
+        Mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+        Mesh.Clear();
+        Mesh.SetVertices(Vertices);
+        yield return null;
+        Mesh.SetTriangles(Triangles, 0);
+        yield return null;
+        //Mesh.RecalculateNormals();
+        MeshFilter.mesh = Mesh;
     }
 
     

@@ -87,7 +87,7 @@ public class Slicing : MonoBehaviour
                 NewTantoCut.GetComponent<BoxCollider>().enabled = true;
                 NewTantoCut.AddComponent<Rigidbody>().useGravity = false;
                 NewTantoCut.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-                NewTantoCut.GetComponent<MeshRenderer>().material = GameObject.Find("TestTarget").GetComponent<MeshRenderer>().material;
+                //NewTantoCut.GetComponent<MeshRenderer>().material = GameObject.Find("TestTarget").GetComponent<MeshRenderer>().material;
             }
             if (Input.GetMouseButton(0))
             {
@@ -95,70 +95,29 @@ public class Slicing : MonoBehaviour
             }
             if (Input.GetMouseButtonUp(0))
             {
-               
+
                 Vector3 voxelStart = WorldToVoxel(TantoStartPoint);
                 Vector3 voxelEnd = WorldToVoxel(TantoEndPoint);
-
                 Vector3 camForward = Marble.transform.InverseTransformDirection(Camera.main.transform.forward);
-
                 Vector3 screenDir = Vector3.ProjectOnPlane(voxelEnd - voxelStart, camForward).normalized;
                 Vector3 PlaneNormal = Vector3.Cross(screenDir, camForward).normalized;
-
-
                 Vector3 direction = (voxelEnd - voxelStart).normalized;
                 float length = Vector3.Distance(voxelStart, voxelEnd);
 
-                // Stable rotation
                 Vector3 up = Camera.main.transform.forward;
                 if (Vector3.Dot(direction, up) > 0.99f)
                     up = Vector3.up;
 
-                // Z axis = along the slice (blade direction)
-                Vector3 forward = direction;
+                Quaternion rotation = Quaternion.LookRotation(direction, PlaneNormal);
 
-                // Y axis = plane normal (this makes cut face camera correctly)
-                Vector3 upAxis = PlaneNormal;
-
-                // X axis = perpendicular (completes orthonormal basis)
-                Vector3 right = Vector3.Cross(upAxis, forward).normalized;
-
-                // Rebuild a perfectly aligned rotation
-                Quaternion rotation = Quaternion.LookRotation(forward, upAxis);
-
-                // Proper sizes
                 float thickness = 0.75f;
                 Vector3 MDims = DCScript.MDims;
                 float depth = Mathf.Max(MDims.x, MDims.y, MDims.z);
-
-                Vector3 halfSize = new Vector3(
-                    depth,
-                    thickness,
-                    length *0.5f
-                );
-
-                // Accurate centre
+                Vector3 halfSize = new Vector3(depth, thickness, length * 0.5f);
                 Vector3 centre = (voxelStart + voxelEnd) * 0.5f;
-                //print(centre);
-                // Apply
-                DCScript.ApplyTantoCut(centre, halfSize, rotation);
-                /*
-                /var islands = DCScript.FindIslands();
-                //print(islands);
-                List<Vector3Int> mainIsland = islands[0];
 
-                foreach (var island in islands)
-                {
-                    if (island.Count > mainIsland.Count)
-                        mainIsland = island;
+                StartCoroutine(ApplyCutAndSpawnDebris(centre, halfSize, rotation));
 
-                }
-                foreach (var island in islands)
-                {
-                    if (island == mainIsland) continue;
-
-                    DCScript.CreateDebris(island);
-                }
-                */
                 CutCount++;
                 Timer.TimerOn = true;
             }   
@@ -304,6 +263,61 @@ public class Slicing : MonoBehaviour
         }
         
 
+    }
+
+
+    IEnumerator ApplyCutAndSpawnDebris(Vector3 centre, Vector3 halfSize, Quaternion rotation)
+    {
+        // Carve the density field
+        for (int x = 0; x < DCScript.MDims.x; x++)
+        {
+            for (int y = 0; y < DCScript.MDims.y; y++)
+                for (int z = 0; z < DCScript.MDims.z; z++)
+                {
+                    Vector3 Local = Quaternion.Inverse(rotation) *
+                                    (new Vector3(x, y, z) - centre);
+                    if (Mathf.Abs(Local.x) < halfSize.x &&
+                        Mathf.Abs(Local.y) < halfSize.y &&
+                        Mathf.Abs(Local.z) < halfSize.z)
+                    {
+                        DCScript.Density[x, y, z] = -100f;
+                    }
+                }
+
+            if (x % 8 == 0) yield return null; // spread carve across frames
+        }
+
+        // Find islands in the affected Y region
+        int MinY = Mathf.Clamp(Mathf.FloorToInt(centre.y - halfSize.z - 2f), 0, DCScript.MDims.y - 1);
+        int MaxY = Mathf.Clamp(Mathf.CeilToInt(centre.y + halfSize.z + 2f), 0, DCScript.MDims.y - 1);
+
+        var islands = DCScript.FindIslands(0, DCScript.MDims.x - 1, MinY, MaxY, 0, DCScript.MDims.z - 1);
+        yield return null;
+
+        if (islands.Count > 0)
+        {
+            // Find the largest island (main marble)
+            List<Vector3Int> mainIsland = islands[0];
+            foreach (var island in islands)
+                if (island.Count > mainIsland.Count)
+                    mainIsland = island;
+
+            // Spawn debris for everything else, max 2 pieces
+            int debrisMade = 0;
+            foreach (var island in islands)
+            {
+                if (island == mainIsland) continue;
+                if (debrisMade >= 2) break;
+                DCScript.CreateDebris(island);
+                debrisMade++;
+                yield return null;
+            }
+        }
+
+        // Rebuild mesh async
+        DCScript.GenerateMesh();
+
+        Destroy(GameObject.Find("TantoCut"));
     }
 
 }
