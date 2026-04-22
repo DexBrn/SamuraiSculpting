@@ -1,4 +1,5 @@
 using NUnit;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Unity.Mathematics;
@@ -20,6 +21,9 @@ public class DualContouring : MonoBehaviour
 
     public GameObject Sword;
     public GameObject Target;
+
+    List<Vector3> Vertices = new List<Vector3>();
+    List<int> Triangles = new List<int>();
 
     void Start()
     {
@@ -117,8 +121,10 @@ public class DualContouring : MonoBehaviour
 
     void GenerateMesh()
     {
-        List<Vector3> Vertices = new List<Vector3>();
-        List<int> Triangles = new List<int>();
+
+        Vertices.Clear();
+        Triangles.Clear();
+
         int[,,] VertexIndices = new int[MDims.x, MDims.y, MDims.z];
 
         // Generate one vertex per cell that contains a surface crossing
@@ -454,6 +460,7 @@ public class DualContouring : MonoBehaviour
     }
 
 
+
     static readonly Vector3Int[] Directions = new Vector3Int[]
 {
     new Vector3Int(1,0,0), new Vector3Int(-1,0,0),
@@ -514,7 +521,7 @@ public class DualContouring : MonoBehaviour
 
 
 
-
+    /*
     public void Slice(Vector3 StartPos, Vector3 EndPos)
     {
 
@@ -574,24 +581,84 @@ public class DualContouring : MonoBehaviour
         var islands = FindIslands(MinX, MaxX, MinY, MaxY, MinZ, MaxZ);
 
         //Find Main Island
-        List<Vector3Int> mainIsland = islands[0];
-        foreach (var island in islands)
+        if (islands[0] != null)
         {
-            if (island.Count > mainIsland.Count)
-                mainIsland = island;
+            List<Vector3Int> mainIsland = islands[0];
+            foreach (var island in islands)
+            {
+                if (island.Count > mainIsland.Count)
+                    mainIsland = island;
 
-        }
-        //Create Debris
-        foreach (var island in islands)
-        {
-            if (island == mainIsland) continue;
+            }
+            //Create Debris
+            foreach (var island in islands)
+            {
+                if (island == mainIsland) continue;
 
-            CreateDebris(island);
+                CreateDebris(island);
+            }
         }
+        
         
         GenerateMesh();
     }
-    
+    */
+    public void Slice(Vector3 StartPos, Vector3 EndPos)
+    {
+        StartCoroutine(SliceCoroutine(StartPos, EndPos));
+    }
+
+    IEnumerator SliceCoroutine(Vector3 StartPos, Vector3 EndPos)
+    {
+        StartPos = transform.InverseTransformPoint(StartPos);
+        EndPos = transform.InverseTransformPoint(EndPos);
+
+        Vector3 camForward = transform.InverseTransformDirection(Camera.main.transform.forward);
+        Vector3 screenDir = Vector3.ProjectOnPlane(EndPos - StartPos, camForward).normalized;
+        Vector3 PlaneNormal = Vector3.Cross(screenDir, camForward).normalized;
+
+        UnityEngine.Plane Plane = new UnityEngine.Plane(PlaneNormal, StartPos);
+
+        int MinY = Mathf.Clamp(Mathf.FloorToInt(Mathf.Min(StartPos.y, EndPos.y) - 2f), 0, MDims.y - 1);
+        int MaxY = Mathf.Clamp(Mathf.CeilToInt(Mathf.Max(StartPos.y, EndPos.y) + 2f), 0, MDims.y - 1);
+
+        // Carve pass — spread across frames by yielding every few rows
+        for (int x = 0; x < MDims.x; x++)
+        {
+            for (int y = MinY; y <= MaxY; y++)
+                for (int z = 0; z < MDims.z; z++)
+                {
+                    float PlaneDistance = Plane.GetDistanceToPoint(new Vector3(x, y, z));
+                    if (Mathf.Abs(PlaneDistance) < 1f)
+                        Density[x, y, z] = -100f;
+                }
+
+            // Yield every 8 columns to spread load across frames
+            if (x % 8 == 0) yield return null;
+        }
+
+        // Island detection — also spread across frames
+        var islands = FindIslands(0, MDims.x - 1, MinY, MaxY, 0, MDims.z - 1);
+        yield return null;
+
+        if (islands.Count > 0)
+        {
+            List<Vector3Int> mainIsland = islands[0];
+            foreach (var island in islands)
+                if (island.Count > mainIsland.Count)
+                    mainIsland = island;
+
+            foreach (var island in islands)
+            {
+                if (island == mainIsland) continue;
+                CreateDebris(island);
+                yield return null; // Spread debris creation across frames
+            }
+        }
+
+        GenerateMesh();
+    }
+
     
 
 
