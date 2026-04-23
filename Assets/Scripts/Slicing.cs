@@ -54,6 +54,7 @@ public class Slicing : MonoBehaviour
         DCScript = Marble.GetComponent<DualContouring>();
         Timer = GetComponent<Timer>();
         OriginalViewModelPos = ViewModel.transform.position;
+        StartCoroutine(KatanaBeginning());
     }
 
 
@@ -318,6 +319,15 @@ public class Slicing : MonoBehaviour
         DCScript.GenerateMesh();
 
         Destroy(GameObject.Find("TantoCut"));
+    }
+
+
+    IEnumerator KatanaBeginning()
+    {
+        Sword.SetActive(false);
+        yield return new WaitForSeconds(6.3f);
+        ViewModel.GetComponent<Animator>().enabled = false;
+        Sword.SetActive(true);
     }
 
 }
