@@ -712,7 +712,7 @@ public class DualContouring : MonoBehaviour
         debris.AddComponent<BoxCollider>();
 
         rb.mass = 1f;
-        rb.AddForce(UnityEngine.Random.onUnitSphere * 2f, ForceMode.Impulse);
+        rb.AddForce(UnityEngine.Random.onUnitSphere * 10f, ForceMode.Impulse);
     }
 
 
