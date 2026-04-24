@@ -77,7 +77,7 @@ public class LevelManager : MonoBehaviour
 
         if (SceneManager.GetActiveScene() == SceneManager.GetSceneByName("Main"))
             if (Input.GetKeyDown(KeyCode.R))
-                SceneManager.LoadScene("Main");
+                DCScript.ResetMarble();
             else if (Input.GetKeyDown(KeyCode.Escape))
                 SceneManager.LoadScene("Caravan Talent Agent");
     }

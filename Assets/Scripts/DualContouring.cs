@@ -839,7 +839,7 @@ public class DualContouring : MonoBehaviour
                         Density[x, y, z] = -100f;
                 }
 
-            // Yield every 8 columns to spread load across frames
+            // Yield every column to spread load across frames
             if (x % 1 == 0) yield return null;
         }
 

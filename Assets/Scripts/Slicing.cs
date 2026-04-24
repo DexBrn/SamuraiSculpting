@@ -42,7 +42,7 @@ public class Slicing : MonoBehaviour
 
     Vector3 OriginalViewModelPos;
 
-
+    public bool DoingWalkOut;
 
 
     void Start()
@@ -133,6 +133,9 @@ public class Slicing : MonoBehaviour
                 MoveMode = 1;
         }
 
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
+            if (DoingWalkOut)
+                StartCoroutine(SkipOpening());
 
 
         if (Input.GetKeyDown(KeyCode.Alpha1))
@@ -325,9 +328,19 @@ public class Slicing : MonoBehaviour
     IEnumerator KatanaBeginning()
     {
         Sword.SetActive(false);
-        yield return new WaitForSeconds(6.3f);
+        CanAttack = false;
+        DoingWalkOut = true;
+        yield return new WaitForSeconds(6.0f);
         ViewModel.GetComponent<Animator>().enabled = false;
         Sword.SetActive(true);
+        DoingWalkOut = false;
+        CanAttack = true;
     }
 
+    IEnumerator SkipOpening()
+    {
+        Time.timeScale = 100;
+        yield return new WaitForSeconds(50);
+        Time.timeScale = 1;
+    }
 }

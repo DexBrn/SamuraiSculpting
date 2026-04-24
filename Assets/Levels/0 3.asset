@@ -13,9 +13,28 @@ MonoBehaviour:
   m_Name: 0 3
   m_EditorClassIdentifier: 
   LevelID: 3
-  Name: Tester
-  Description: 2323212421
-  TargetSculptures: []
-  Accuracy: []
-  TimeTaken: []
-  Cuts: []
+  Name: Prove it
+  Description: Bill wants you to do one final test before going out into work, impress
+    him.
+  TargetSculptures:
+  - {fileID: 6344348880235093388, guid: 17b09df8b483a8644b8ab3724ee1691f, type: 3}
+  - {fileID: 8381228583119517050, guid: 3f01235cc1520484e84091a995b5f280, type: 3}
+  - {fileID: 51374560218390027, guid: 6812635dfc44b8345b593df88a480d1b, type: 3}
+  Accuracy:
+  - 95
+  - 80
+  - 70
+  - 60
+  - 55
+  TimeTaken:
+  - 25
+  - 60
+  - 90
+  - 120
+  - 180
+  Cuts:
+  - 12
+  - 24
+  - 36
+  - 48
+  - 60

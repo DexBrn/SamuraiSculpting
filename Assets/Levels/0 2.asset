@@ -14,8 +14,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   LevelID: 2
   Name: Tanto Basics
-  Description: sfasfasfasf
-  TargetSculptures: []
-  Accuracy: []
-  TimeTaken: []
-  Cuts: []
+  Description: After gaining confidence with the katana, Bill has trusted you with
+    your father's Tanto.
+  TargetSculptures:
+  - {fileID: 6025326068252403716, guid: ac283a78fac8c7346add9774b674873b, type: 3}
+  - {fileID: 5576439514194472986, guid: 935b28a80d9c85745a8e09f151e53cfc, type: 3}
+  - {fileID: 9082097936821847819, guid: 48f379357fc962a46aa30070a817edd0, type: 3}
+  Accuracy:
+  - 95
+  - 80
+  - 70
+  - 60
+  - 55
+  TimeTaken:
+  - 25
+  - 60
+  - 90
+  - 120
+  - 180
+  Cuts:
+  - 12
+  - 24
+  - 36
+  - 48
+  - 60
