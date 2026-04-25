@@ -12,6 +12,7 @@ public class LevelManager : MonoBehaviour
     public DualContouring DCScript;
     ResultsScreen RSScript;
     SculptureCheckScript SCScript;
+    Dialogue Dialogue;
 
     public Transform LevelGrid;
     public TMP_Text LevelNameObj;
@@ -32,12 +33,14 @@ public class LevelManager : MonoBehaviour
     public Color[] GradeColours;
     public Color[] FinalGradeColours;
 
-
+    public Vector3 PreviewPosition;
 
     void Awake()
     {
         RSScript = GetComponent<ResultsScreen>();
         SCScript = GetComponent<SculptureCheckScript>();
+        if (GetComponent<Dialogue>())
+            Dialogue = GetComponent<Dialogue>();
 
         if (SceneManager.GetActiveScene() == SceneManager.GetSceneByName("Main"))
         {
@@ -103,7 +106,12 @@ public class LevelManager : MonoBehaviour
         else
             CutGradeObj.text = "";
 
-
+        Destroy(GameObject.Find("PreviewObject"));
+        GameObject NewPreviewObject = Instantiate(LevelList[LevelId].TargetSculptures[0]);
+        NewPreviewObject.transform.position = PreviewPosition;
+        NewPreviewObject.AddComponent<ContinuousRotation>();
+        NewPreviewObject.name = "PreviewObject";
+        NewPreviewObject.layer = LayerMask.GetMask("Default");
 
 
 
@@ -112,7 +120,15 @@ public class LevelManager : MonoBehaviour
 
     public void LoadLevel()
     {
-        SceneManager.LoadScene("Main");
+        int NextLevel = PlayerPrefs.GetInt("SelectedLevel");
+        Dialogue.StartDialogue();
+        Dialogue.TextList.Clear();
+        for (int i = 0; i < LevelList[NextLevel].PreLevelDialogue.Count; i++)
+            Dialogue.TextList.Add(LevelList[NextLevel].PreLevelDialogue[i]);
+        Dialogue.StartLevelAfter = true;
+        Dialogue.CurrentText = 0;
+        StartCoroutine(Dialogue.WriteText(LevelList[NextLevel].PreLevelDialogue[0]));
+        //SceneManager.LoadScene("Main");
     }
 
     public void PopulateLevelGrades()

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
 public class Dialogue : MonoBehaviour
 {
 
@@ -11,7 +11,8 @@ public class Dialogue : MonoBehaviour
     public TMP_Text DialogueBox;
     public GameObject LevelSelect;
     bool WritingText = false;
-    int CurrentText;
+    public int CurrentText;
+    public bool StartLevelAfter;
 
     LevelManager LevelManager;
 
@@ -38,6 +39,8 @@ public class Dialogue : MonoBehaviour
             else
             {
                 CurrentText++;
+                if (StartLevelAfter && CurrentText >= TextList.Count)
+                { SceneManager.LoadScene("Main"); DialogueBox.transform.parent.gameObject.SetActive(false); LevelManager.PopulateLevelGrades(); return; }
                 if (CurrentText >= TextList.Count)
                 { DialogueBox.transform.parent.gameObject.SetActive(false); LevelSelect.SetActive(true); LevelManager.PopulateLevelGrades(); return; }
                 StartCoroutine(WriteText(TextList[CurrentText]));
@@ -46,7 +49,7 @@ public class Dialogue : MonoBehaviour
     }
 
 
-    IEnumerator WriteText(string Text)
+    public IEnumerator WriteText(string Text)
     {
         DialogueBox.text = "";
         WritingText = true;
@@ -62,7 +65,11 @@ public class Dialogue : MonoBehaviour
         WritingText=false;
     }
 
-
+    public void StartDialogue()
+    {
+        DialogueBox.transform.parent.gameObject.SetActive(true); LevelSelect.SetActive(false);
+        DialogueBox.transform.parent.GetComponent<Animator>().Play("DialogueBoxOpen");
+    }
 
 
 }

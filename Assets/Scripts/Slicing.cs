@@ -68,8 +68,7 @@ public class Slicing : MonoBehaviour
             {
                 StartCoroutine(SliceVisual());
                 
-                CutCount++;
-                Timer.TimerOn = true;
+                
             }
         }
         if (WeaponOn == 2)
@@ -255,6 +254,8 @@ public class Slicing : MonoBehaviour
         if (CanAttack)
         {
             CanAttack = false;
+            CutCount++;
+            Timer.TimerOn = true;
             ViewModel.GetComponent<Animator>().enabled = true;
             ViewModel.GetComponent<Animator>().SetBool("IsCutting", true);
             yield return new WaitForSeconds(0.22f);

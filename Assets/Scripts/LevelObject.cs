@@ -16,7 +16,8 @@ public class LevelObject : ScriptableObject
     public List<float> TimeTaken = new List<float>(); //0-S, 1-A, 2-B, 3-C, 4-D
     public List<float> Cuts = new List<float>(); //0-S, 1-A, 2-B, 3-C, 4-D
 
-
+    [Header("Dialogue")]
+    public List<string> PreLevelDialogue = new List<string>();
 
 
 }
