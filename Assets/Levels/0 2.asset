@@ -17,7 +17,7 @@ MonoBehaviour:
   Description: After gaining confidence with the katana, Bill has trusted you with
     your father's Tanto.
   TargetSculptures:
-  - {fileID: 6025326068252403716, guid: ac283a78fac8c7346add9774b674873b, type: 3}
+  - {fileID: 7674019229823096875, guid: 999fc5941f38089409a4d4c058e5d481, type: 3}
   - {fileID: 5576439514194472986, guid: 935b28a80d9c85745a8e09f151e53cfc, type: 3}
   - {fileID: 9082097936821847819, guid: 48f379357fc962a46aa30070a817edd0, type: 3}
   Accuracy:

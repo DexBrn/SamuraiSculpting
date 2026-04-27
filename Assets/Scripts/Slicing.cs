@@ -28,6 +28,7 @@ public class Slicing : MonoBehaviour
     bool CanAttack = true;
 
     public Material MarbleMat;
+    public Material TantoCutMat;
     TextureRegion Region;
 
     public int MoveMode = 1;
@@ -87,7 +88,7 @@ public class Slicing : MonoBehaviour
                 NewTantoCut.GetComponent<BoxCollider>().enabled = true;
                 NewTantoCut.AddComponent<Rigidbody>().useGravity = false;
                 NewTantoCut.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-                //NewTantoCut.GetComponent<MeshRenderer>().material = GameObject.Find("TestTarget").GetComponent<MeshRenderer>().material;
+                NewTantoCut.GetComponent<MeshRenderer>().material = TantoCutMat;
             }
             if (Input.GetMouseButton(0))
             {
@@ -226,9 +227,32 @@ public class Slicing : MonoBehaviour
     void TantoControl()
     {
         TantoEndPoint = Sword.transform.position;
+        float Length = Mathf.Clamp(Vector3.Distance(TantoStartPoint, TantoEndPoint), 0, 1.5f);
+
+        
+
+        Gradient TantoGradient = new Gradient();
+        TantoGradient.SetKeys(
+            new GradientColorKey[] {
+        new GradientColorKey(Color.green, 0f),
+        new GradientColorKey(Color.yellow, 0.5f),
+        new GradientColorKey(Color.red, 1f)
+            },
+            new GradientAlphaKey[] {
+        new GradientAlphaKey(1f, 1f),
+        new GradientAlphaKey(1f, 1f)
+            }
+        );
+        Color TantoColour = TantoGradient.Evaluate(Length /1.5f);
+
+        NewTantoCut.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", TantoColour);
+        NewTantoCut.GetComponent<MeshRenderer>().material.color = TantoColour;
+
+        if (Length == 1.5f)
+            TantoEndPoint = TantoStartPoint + (TantoEndPoint - TantoStartPoint).normalized * 1.5f;
         NewTantoCut.transform.position = (TantoStartPoint + TantoEndPoint) / 2;
         NewTantoCut.transform.position = new Vector3(NewTantoCut.transform.position.x, NewTantoCut.transform.position.y, -5.2f);
-        float Length = Vector3.Distance(TantoStartPoint, TantoEndPoint);
+        
         Vector3 Direction = (TantoEndPoint - TantoStartPoint).normalized;
         if (Direction !=  Vector3.zero)
             NewTantoCut.transform.rotation = Quaternion.LookRotation(Direction);

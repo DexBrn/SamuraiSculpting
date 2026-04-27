@@ -91,7 +91,8 @@ public class ResultsScreen : MonoBehaviour
         GradeText.enabled = true;
         GradeText.text = $"<color=#{ColorUtility.ToHtmlStringRGB(FinalGradeColours[TotalGrades])}>{PossibleFinalGrades[TotalGrades]}</color>";
         yield return new WaitForSeconds(1);
-        ContinueButton.SetActive(true);
+        if (PossibleGrades[AccGrade] != "F")
+            ContinueButton.SetActive(true);
         RetryButton.SetActive(true);
         MenuButton.SetActive(true);
     }
@@ -122,14 +123,21 @@ public class ResultsScreen : MonoBehaviour
             { TotalGrades += 5; CutsGrade = 5; }
         }
 
+        if (AccGrade == 5)
+            TotalGrades = 15;
+
         if (SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4] > AccGrade+1 || SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4] == 0)
-            SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4] = AccGrade+1;
+            if (TotalGrades < 12)
+                SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4] = AccGrade+1;
         if (SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4+1] > TimeGrade + 1 || SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4+1] == 0)
-            SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4 + 1] = TimeGrade+1;
+            if (TotalGrades < 12)
+                SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4 + 1] = TimeGrade+1;
         if (SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4 + 2] > CutsGrade + 1 || SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4 + 2] == 0)
-            SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4 + 2] = CutsGrade + 1;
+            if (TotalGrades < 12)
+                SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4 + 2] = CutsGrade + 1;
         if (SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4 + 3] > TotalGrades + 1 || SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4 + 3] == 0)
-            SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4 + 3] = TotalGrades + 1;
+            if (TotalGrades < 12)
+                SaveFile.AllAchievedGrades[((CurrentLevel + 1) * 4) - 4 + 3] = TotalGrades + 1;
         SaveFile.SaveToPlayerPrefs();
 
         //Make It so now it only changes if new grade is better

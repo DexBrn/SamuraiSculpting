@@ -40,9 +40,9 @@ public class Dialogue : MonoBehaviour
             {
                 CurrentText++;
                 if (StartLevelAfter && CurrentText >= TextList.Count)
-                { SceneManager.LoadScene("Main"); DialogueBox.transform.parent.gameObject.SetActive(false); LevelManager.PopulateLevelGrades(); return; }
+                { SceneManager.LoadScene("Main"); DialogueBox.transform.parent.gameObject.SetActive(false); return; }
                 if (CurrentText >= TextList.Count)
-                { DialogueBox.transform.parent.gameObject.SetActive(false); LevelSelect.SetActive(true); LevelManager.PopulateLevelGrades(); return; }
+                { DialogueBox.transform.parent.gameObject.SetActive(false); LevelSelect.SetActive(true); LevelManager.PopulateLevelGrades(); LevelManager.LockLevels(); return; }
                 StartCoroutine(WriteText(TextList[CurrentText]));
             }
         }

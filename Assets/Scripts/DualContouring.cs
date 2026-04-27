@@ -64,14 +64,14 @@ public class DualContouring : MonoBehaviour
             {
 
                 transform.parent.Rotate(0, 1, 0);
-                if (Target.transform.GetChild(0))
+                if (Target.transform.childCount > 0)
                 { Target.transform.GetChild(0).Rotate(0, 1, 0); return; }
                 Target.transform.Rotate(0, 1, 0);
             }
             else if (Input.GetKey(KeyCode.Q))
             {
                 transform.parent.Rotate(0, -1, 0);
-                if (Target.transform.GetChild(0))
+                if (Target.transform.childCount > 0)
                 { Target.transform.GetChild(0).Rotate(0, -1, 0); return; }
                 Target.transform.Rotate(0, -1, 0);
             }

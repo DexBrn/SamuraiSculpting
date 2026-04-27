@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using TMPro;
+using UnityEngine.UI;
 using UnityEditor.ShaderGraph.Internal;
 using static UnityEngine.GraphicsBuffer;
 public class LevelManager : MonoBehaviour
@@ -13,6 +14,8 @@ public class LevelManager : MonoBehaviour
     ResultsScreen RSScript;
     SculptureCheckScript SCScript;
     Dialogue Dialogue;
+    Slicing Slicing;
+    Timer Timer;
 
     public Transform LevelGrid;
     public TMP_Text LevelNameObj;
@@ -41,6 +44,10 @@ public class LevelManager : MonoBehaviour
         SCScript = GetComponent<SculptureCheckScript>();
         if (GetComponent<Dialogue>())
             Dialogue = GetComponent<Dialogue>();
+        if (GetComponent<Slicing>())
+            Slicing = GetComponent<Slicing>();
+        if (GetComponent<Timer>())
+            Timer = GetComponent<Timer>();
 
         if (SceneManager.GetActiveScene() == SceneManager.GetSceneByName("Main"))
         {
@@ -66,6 +73,8 @@ public class LevelManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Return))
         {
+            if (Slicing.CutCount == 0 || Timer.CurrentTime == 0)
+                return;
             if (CurrentTargetIndex == 3)
             { RSScript.OpenResultsScreen(); return; }
             SCScript.FullCheck();
@@ -140,10 +149,19 @@ public class LevelManager : MonoBehaviour
             else
                 LevelGrid.GetChild(i).GetChild(1).GetComponent<TMP_Text>().text = "";
         }
-
-
-
     }
+
+    public void LockLevels()
+    {
+        for (int i = 1; i < LevelGrid.childCount; i++)
+        {
+            if (SaveFile.AllAchievedGrades[(i) * 4 - 4 + 3] != 0 && SaveFile.AllAchievedGrades[(i) * 4 - 4 + 3] < 12)
+                LevelGrid.GetChild(i).GetComponent<Image>().color = new Color(1, 0.6273585f, 0.7986355f);
+            else
+            { LevelGrid.GetChild(i).GetComponent<Image>().color = new Color(0.172549f, 0.172549f, 0.172549f); LevelGrid.GetChild(i).GetComponent<Button>().enabled = false ; }
+        }
+    }
+
 
 
     public void NextLevel()
