@@ -3567,6 +3567,7 @@ MonoBehaviour:
   - {r: 0.5803922, g: 0.6627451, b: 1, a: 0}
   - {r: 0.5803922, g: 0.6627451, b: 1, a: 0}
   - {r: 0.5803922, g: 0.6627451, b: 1, a: 0}
+  PreviewPosition: {x: 0, y: 0, z: 0}
 --- !u!1001 &1621381109
 PrefabInstance:
   m_ObjectHideFlags: 0

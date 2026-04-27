@@ -18,7 +18,7 @@ MonoBehaviour:
     him.
   TargetSculptures:
   - {fileID: 6344348880235093388, guid: 17b09df8b483a8644b8ab3724ee1691f, type: 3}
-  - {fileID: 8381228583119517050, guid: 3f01235cc1520484e84091a995b5f280, type: 3}
+  - {fileID: 372966786531664539, guid: 7ce0307dbcbdf9e4e8e22f6e69781231, type: 3}
   - {fileID: 51374560218390027, guid: 6812635dfc44b8345b593df88a480d1b, type: 3}
   Accuracy:
   - 95

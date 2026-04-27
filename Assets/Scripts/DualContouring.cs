@@ -4,6 +4,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using System.Threading.Tasks;
 using System;
+using Unity.VisualScripting;
 
 public class DualContouring : MonoBehaviour
 {
@@ -63,11 +64,15 @@ public class DualContouring : MonoBehaviour
             {
 
                 transform.parent.Rotate(0, 1, 0);
+                if (Target.transform.GetChild(0))
+                { Target.transform.GetChild(0).Rotate(0, 1, 0); return; }
                 Target.transform.Rotate(0, 1, 0);
             }
             else if (Input.GetKey(KeyCode.Q))
             {
                 transform.parent.Rotate(0, -1, 0);
+                if (Target.transform.GetChild(0))
+                { Target.transform.GetChild(0).Rotate(0, -1, 0); return; }
                 Target.transform.Rotate(0, -1, 0);
             }
 
