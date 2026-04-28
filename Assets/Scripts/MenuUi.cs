@@ -1,22 +1,20 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class MenuUi : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public GameObject LoadingScreen;
 
     public void PlayButton()
     {
+        StartCoroutine(StartPlay());
+    }
+
+    IEnumerator StartPlay()
+    {
+        LoadingScreenOn();
+        yield return new WaitForSeconds(0.5f);
         SceneManager.LoadScene("Caravan Talent Agent");
     }
 
@@ -25,6 +23,10 @@ public class MenuUi : MonoBehaviour
         Application.Quit();
     }
 
-
+    public void LoadingScreenOn()
+    {
+        LoadingScreen.SetActive(true);
+        
+    }
 
 }

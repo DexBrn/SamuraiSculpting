@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using System.Collections;
 using TMPro;
 using UnityEngine.UI;
 using UnityEditor.ShaderGraph.Internal;
@@ -37,6 +38,8 @@ public class LevelManager : MonoBehaviour
     public Color[] FinalGradeColours;
 
     public Vector3 PreviewPosition;
+
+    public GameObject LoadingScreen;
 
     void Awake()
     {
@@ -167,7 +170,7 @@ public class LevelManager : MonoBehaviour
     public void NextLevel()
     {
         PlayerPrefs.SetInt("SelectedLevel", CurrentLevel+1);
-        SceneManager.LoadScene("Main");
+        StartCoroutine(LoadMain());
     }
     
     public void RetryLevel()
@@ -180,6 +183,11 @@ public class LevelManager : MonoBehaviour
         SceneManager.LoadScene("Caravan Talent Agent");
     }
 
-
+    public IEnumerator LoadMain()
+    {
+        LoadingScreen.SetActive(true);
+        yield return new WaitForSeconds(0.5f);
+        SceneManager.LoadScene("Main");
+    }
 
 }
