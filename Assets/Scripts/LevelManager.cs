@@ -133,14 +133,7 @@ public class LevelManager : MonoBehaviour
     public void LoadLevel()
     {
         int NextLevel = PlayerPrefs.GetInt("SelectedLevel");
-        Dialogue.StartDialogue();
-        Dialogue.TextList.Clear();
-        for (int i = 0; i < LevelList[NextLevel].PreLevelDialogue.Count; i++)
-            Dialogue.TextList.Add(LevelList[NextLevel].PreLevelDialogue[i]);
-        Dialogue.StartLevelAfter = true;
-        Dialogue.CurrentText = 0;
-        StartCoroutine(Dialogue.WriteText(LevelList[NextLevel].PreLevelDialogue[0]));
-        //SceneManager.LoadScene("Main");
+        Dialogue.LoadLevelDialogue(LevelList[NextLevel]);
     }
 
     public void PopulateLevelGrades()
@@ -170,7 +163,8 @@ public class LevelManager : MonoBehaviour
     public void NextLevel()
     {
         PlayerPrefs.SetInt("SelectedLevel", CurrentLevel+1);
-        StartCoroutine(LoadMain());
+        PlayerPrefs.SetInt("Continuing", 1);
+        StartCoroutine(LoadVan());
     }
     
     public void RetryLevel()
@@ -180,7 +174,7 @@ public class LevelManager : MonoBehaviour
      
     public void GoToMenu()
     {
-        SceneManager.LoadScene("Caravan Talent Agent");
+        StartCoroutine(LoadVan());
     }
 
     public IEnumerator LoadMain()
@@ -188,6 +182,13 @@ public class LevelManager : MonoBehaviour
         LoadingScreen.SetActive(true);
         yield return new WaitForSeconds(0.5f);
         SceneManager.LoadScene("Main");
+    }
+
+    public IEnumerator LoadVan()
+    {
+        LoadingScreen.SetActive(true);
+        yield return new WaitForSeconds(0.5f);
+        SceneManager.LoadScene("Caravan Talent Agent");
     }
 
 }

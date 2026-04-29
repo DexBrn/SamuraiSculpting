@@ -13,9 +13,27 @@ MonoBehaviour:
   m_Name: 0 8
   m_EditorClassIdentifier: 
   LevelID: 8
-  Name: 
-  Description: 
-  TargetSculptures: []
+  Name: The Big Leagues
+  Description: Everyone wants a piece now, even tech billionaires. This is it!
+  TargetSculptures:
+  - {fileID: 832710699537922295, guid: d5ff7cee533939e4ba3bf0916bafa5a7, type: 3}
+  - {fileID: 832710699537922295, guid: d5ff7cee533939e4ba3bf0916bafa5a7, type: 3}
+  - {fileID: 832710699537922295, guid: d5ff7cee533939e4ba3bf0916bafa5a7, type: 3}
   Accuracy: []
   TimeTaken: []
   Cuts: []
+  PreLevelDialogue:
+  - KID, SLAP ME.
+  - Am I dreaming?
+  - " We got an offer we physically can\u2019t refuse. It\u2019s a bit crazy, BUT
+    this will put us on the map!"
+  - "Right now we\u2019re just dawgs, we do this well, WE ENLARGE KID, we become
+    big dawgs!"
+  - "Okay I\u2019ll slow down, have you heard of Tim Apple? He wants OUR sculptures."
+  - Mhm, OURS! He is paying us BIG for this.
+  - "I am warning you though, these sculptures are HARD, you\u2019re going to have
+    to use all of the skills you\u2019ve gained over the past couple orders to smash
+    this out of the park."
+  - "Get this done well, and ol\u2019 Bill will get the first THREE rounds, I\u2019ll
+    even get you that expensive sake you like."
+  - "Alright DON\u2019T let Bill down!"

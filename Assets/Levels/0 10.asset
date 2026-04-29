@@ -15,7 +15,11 @@ MonoBehaviour:
   LevelID: 10
   Name: 
   Description: 
-  TargetSculptures: []
+  TargetSculptures:
+  - {fileID: 832710699537922295, guid: d5ff7cee533939e4ba3bf0916bafa5a7, type: 3}
+  - {fileID: 832710699537922295, guid: d5ff7cee533939e4ba3bf0916bafa5a7, type: 3}
+  - {fileID: 832710699537922295, guid: d5ff7cee533939e4ba3bf0916bafa5a7, type: 3}
   Accuracy: []
   TimeTaken: []
   Cuts: []
+  PreLevelDialogue: []

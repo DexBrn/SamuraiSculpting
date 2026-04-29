@@ -39,5 +39,20 @@ MonoBehaviour:
   - 48
   - 60
   PreLevelDialogue:
-  - Hey kid I was you luck, this is still and example piece of dialogue.
-  - Go on, chop chop get to it
+  - "Kid, the TIME HAS COME! That\u2019s right, your father has entrusted BILL to
+    give his sword to YOU! The family sword I\u2019ve heard, nothing but the best
+    damascus steel or something."
+  - "Okay I\u2019ll admit I don\u2019t really know anything about swords, it\u2019s
+    the thought that counts though no? Either way there is more important business,
+    which is BUSINESS! We, yes WE are going to make so much money from this."
+  - "What will Bill do? GAH You\u2019re already undervaluing me? Not only am I going
+    to teach you the ropes of sculpting, I\u2019m going to be the one who brings
+    in all the opportunities."
+  - "Opportunities for MONEY. Your family business was missing a trick, we are going
+    to make the BEST sculptures for the richest people we know, and then when their
+    posh friends see OUR sculptures, they\u2019ll want to get in on it."
+  - "Exponential growth, the first rule of business school! But first, we need to
+    teach you the ropes, you can\u2019t even hold your sword let alone make a sculpture."
+  - "Don\u2019t worry we\u2019ll start simple, I\u2019ve got you some marble already
+    - don\u2019t worry Bill\u2019s gotchu. We\u2019ll start with some pretty shapes.
+    Go on chop chop! Bill\u2019s waiting."

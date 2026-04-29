@@ -13,9 +13,24 @@ MonoBehaviour:
   m_Name: 0 7
   m_EditorClassIdentifier: 
   LevelID: 7
-  Name: 
-  Description: 
-  TargetSculptures: []
+  Name: Modern Art
+  Description: At least your buy 2 get 1 free deal is bringing in customers.
+  TargetSculptures:
+  - {fileID: 832710699537922295, guid: d5ff7cee533939e4ba3bf0916bafa5a7, type: 3}
+  - {fileID: 832710699537922295, guid: d5ff7cee533939e4ba3bf0916bafa5a7, type: 3}
+  - {fileID: 832710699537922295, guid: d5ff7cee533939e4ba3bf0916bafa5a7, type: 3}
   Accuracy: []
   TimeTaken: []
   Cuts: []
+  PreLevelDialogue:
+  - How would you define modern art?
+  - "No I don\u2019t think bland is the right word, I would say\u2026 Inspired."
+  - Yeah, inspired!
+  - "Well we\u2019ve got a very inspired family who want some. You think you can
+    manage that?"
+  - "Hey I mean it might be a nice change of pace! I\u2019m not hiding anything\u2026"
+  - "Okay look, the last sculpture in the order might be a little more challenging,
+    but you\u2019ll survive."
+  - "Hey! Don\u2019t disrespect the buy 2 get 1 free business model! It\u2019s served
+    us well so far hasn\u2019t it?"
+  - Just go make Bill proud already!

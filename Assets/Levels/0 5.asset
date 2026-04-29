@@ -13,9 +13,21 @@ MonoBehaviour:
   m_Name: 0 5
   m_EditorClassIdentifier: 
   LevelID: 5
-  Name: 
-  Description: 
-  TargetSculptures: []
+  Name: Word of Mouth
+  Description: Word has already gotten out, and people want in.
+  TargetSculptures:
+  - {fileID: 832710699537922295, guid: d5ff7cee533939e4ba3bf0916bafa5a7, type: 3}
+  - {fileID: 832710699537922295, guid: d5ff7cee533939e4ba3bf0916bafa5a7, type: 3}
+  - {fileID: 832710699537922295, guid: d5ff7cee533939e4ba3bf0916bafa5a7, type: 3}
   Accuracy: []
   TimeTaken: []
   Cuts: []
+  PreLevelDialogue:
+  - "BANG! That\u2019s how it\u2019s DONE! GOOD WORK KID! You smashed it out of the
+    park with the sculpting, so much so that the client\u2019s rich friends already
+    want in on our samurai sculpting!"
+  - hey are practically lining up!
+  - "Okay maybe not lining up, but still! What matters is we\u2019ve got another
+    order, and MAYBE if you do this one as nicely as the last, there will be people
+    lining up."
+  - "Don\u2019t mess this up kid!"

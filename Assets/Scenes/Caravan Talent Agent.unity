@@ -149,16 +149,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99dda616e045f6b4a8901b769f698c0d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  LetterSpeed: 0.02
   DialogueBox: {fileID: 1867226326}
   LevelSelect: {fileID: 1907883835}
   CurrentText: 0
   StartLevelAfter: 0
   TextList:
-  - Hi I'm Bill, this is an example piece of dialogue to test the game, I hope you
-    are having a good day. Today you are going to cut a triangle in the stone - SIMPLE!
-  - Example text 2 Example text 2 Example text 2 Example text 2 Example text 2
-  - Example text 3 Example text 3Example text 3Example text 3Example text 3Example
-    text 3Example text 3Example text 3
+  - "Hey kid, ready to chop \u2018em up? Hehe"
+  - "How\u2019s tricks? Ready to slice and dice? You better be because your best
+    friend Bill is expecting big things"
+  - "Hi, how are you? Oh me?? You shouldn\u2019t have asked, my day has been going
+    absolutely GREAT! I\u2019ve got a big ol\u2019 smile on my.."
+  - Konichiwa, my BEST friend!!
+  - Your BEST friend Bill has a job for you!
+  - "You ever listen to Shakira? You only listen to Japanese music? OH OH, have you
+    ever listened to \u2018stay with me\u2019!?"
+  - "LOOK WHO\u2019S COME BACK TO BILL! It\u2019s alright.. I forgive you. BESIDES,
+    we\u2019ve got MONEY to make!!"
 --- !u!4 &101639279
 Transform:
   m_ObjectHideFlags: 0

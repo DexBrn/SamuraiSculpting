@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 public class Dialogue : MonoBehaviour
 {
 
-    float LetterSpeed = 0.035f;
+    public float LetterSpeed = 0.07f;
     public TMP_Text DialogueBox;
     public GameObject LevelSelect;
     bool WritingText = false;
@@ -23,7 +23,17 @@ public class Dialogue : MonoBehaviour
     void Start()
     {
         LevelManager = GetComponent<LevelManager>();
-        StartCoroutine(WriteText(TextList[CurrentText]));
+
+        if (PlayerPrefs.GetInt("Continuing") == 1)
+            LoadLevelDialogue(LevelManager.LevelList[PlayerPrefs.GetInt("Selected Level")]);
+        else
+        {
+            string OpeningLine = TextList[Random.Range(0, TextList.Count)];
+            TextList.Clear();
+            TextList.Add(OpeningLine);
+            StartCoroutine(WriteText(OpeningLine));
+        }
+        
     }
 
     // Update is called once per frame
@@ -39,10 +49,13 @@ public class Dialogue : MonoBehaviour
             else
             {
                 CurrentText++;
-                if (StartLevelAfter && CurrentText >= TextList.Count)
+
+                if (StartLevelAfter && CurrentText >= TextList.Count) //PreLevel Dialogue
                 { StartCoroutine(LevelManager.LoadMain()); DialogueBox.transform.parent.gameObject.SetActive(false); return; }
-                if (CurrentText >= TextList.Count)
+
+                if (CurrentText >= TextList.Count) //Pre Level Open
                 { DialogueBox.transform.parent.gameObject.SetActive(false); LevelSelect.SetActive(true); LevelManager.PopulateLevelGrades(); LevelManager.LockLevels(); return; }
+
                 StartCoroutine(WriteText(TextList[CurrentText]));
             }
         }
@@ -69,6 +82,19 @@ public class Dialogue : MonoBehaviour
     {
         DialogueBox.transform.parent.gameObject.SetActive(true); LevelSelect.SetActive(false);
         DialogueBox.transform.parent.GetComponent<Animator>().Play("DialogueBoxOpen");
+    }
+
+
+    public void LoadLevelDialogue(LevelObject Level)
+    {
+        PlayerPrefs.SetInt("Continuing", 0);
+        StartDialogue();
+        TextList.Clear();
+        for (int i = 0; i < Level.PreLevelDialogue.Count; i++)
+            TextList.Add(Level.PreLevelDialogue[i]);
+        StartLevelAfter = true;
+        CurrentText = 0;
+        StartCoroutine(WriteText(Level.PreLevelDialogue[0]));
     }
 
 

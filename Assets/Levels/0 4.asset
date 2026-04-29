@@ -13,9 +13,25 @@ MonoBehaviour:
   m_Name: 0 4
   m_EditorClassIdentifier: 
   LevelID: 4
-  Name: 
-  Description: 
-  TargetSculptures: []
+  Name: First Blood
+  Description: After proving yourself to Bill, he's got you a job. Don't mess it
+    up!
+  TargetSculptures:
+  - {fileID: 832710699537922295, guid: d5ff7cee533939e4ba3bf0916bafa5a7, type: 3}
+  - {fileID: 832710699537922295, guid: d5ff7cee533939e4ba3bf0916bafa5a7, type: 3}
+  - {fileID: 832710699537922295, guid: d5ff7cee533939e4ba3bf0916bafa5a7, type: 3}
   Accuracy: []
   TimeTaken: []
   Cuts: []
+  PreLevelDialogue:
+  - "Kid, it\u2019s time. After that performance, I think it\u2019s time. Time to
+    make some MONEY!!"
+  - "Cha-Ching! Can you hear it? It\u2019s the sound of counting machines! Very close
+    counting machines."
+  - "Do you want to know why? BECAUSE ol\u2019 Bill has a job for you!"
+  - Mhm, no need to thank me! I found some rich schmuck.. I mean some well-off admirer
+    of art, who LOVES the sound of your traditional sculpting methods.
+  - "Willing to pay some good money too. Naturally, we\u2019ll split it 50/50, right?"
+  - "Okay okay, I can settle with 65/35, just don\u2019t go forgetting me when you\u2019re
+    famous!"
+  - 'Okay, the order has just come through, are you ready? Go on, get to it! '

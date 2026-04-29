@@ -13,9 +13,25 @@ MonoBehaviour:
   m_Name: 0 6
   m_EditorClassIdentifier: 
   LevelID: 6
-  Name: 
-  Description: 
-  TargetSculptures: []
+  Name: On the Map
+  Description: People are talking about the Samurai Sculptors! Business is booming!
+  TargetSculptures:
+  - {fileID: 832710699537922295, guid: d5ff7cee533939e4ba3bf0916bafa5a7, type: 3}
+  - {fileID: 832710699537922295, guid: d5ff7cee533939e4ba3bf0916bafa5a7, type: 3}
+  - {fileID: 832710699537922295, guid: d5ff7cee533939e4ba3bf0916bafa5a7, type: 3}
   Accuracy: []
   TimeTaken: []
   Cuts: []
+  PreLevelDialogue:
+  - Words getting out kid! The SAMURAI SCULPTORS are on the prowl!
+  - "They all want a piece of us! You would not believe who I just had on the phone!
+    I\u2019ll give you a hint, you won't know them. THEY ARE THAT RICH!"
+  - "Mhm mhm, okay fine they\u2019re just another well off family\u2026 BUT THE POINT
+    STANDS!"
+  - "Business is business at the end of the day right? If we\u2019re getting paid,
+    I\u2019m happy."
+  - "Okay anyway, progress is progress, we\u2019ll get to the big dawgs soon enough,
+    and they will KNOW our name."
+  - "We\u2019ll get so big they start calling us the big dawgs! We\u2019ll be winning
+    so much you\u2019re gonna get SICK of winning!!"
+  - Too far?
