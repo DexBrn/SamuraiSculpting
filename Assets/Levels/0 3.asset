@@ -21,17 +21,17 @@ MonoBehaviour:
   - {fileID: 372966786531664539, guid: 7ce0307dbcbdf9e4e8e22f6e69781231, type: 3}
   - {fileID: 51374560218390027, guid: 6812635dfc44b8345b593df88a480d1b, type: 3}
   Accuracy:
-  - 95
-  - 80
-  - 70
-  - 60
   - 55
+  - 50
+  - 40
+  - 35
+  - 20
   TimeTaken:
-  - 25
   - 60
   - 90
   - 120
   - 180
+  - 240
   Cuts:
   - 12
   - 24
