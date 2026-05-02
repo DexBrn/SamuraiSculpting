@@ -30,6 +30,8 @@ public class DualContouring : MonoBehaviour
     [ThreadStatic] private static Vector3[] t_Points;
     [ThreadStatic] private static Vector3[] t_Normals;
 
+    private Mesh OutlineMesh;
+    public Material OutlineMaterial;
 
     void Start()
     {
@@ -64,14 +66,14 @@ public class DualContouring : MonoBehaviour
             {
 
                 transform.parent.Rotate(0, 1, 0);
-                if (Target.transform.childCount > 0)
+                if (Target.transform.childCount > 0 && Target.tag != "ParentRotate")
                 { Target.transform.GetChild(0).Rotate(0, 1, 0); return; }
                 Target.transform.Rotate(0, 1, 0);
             }
             else if (Input.GetKey(KeyCode.Q))
             {
                 transform.parent.Rotate(0, -1, 0);
-                if (Target.transform.childCount > 0)
+                if (Target.transform.childCount > 0 && Target.tag != "ParentRotate")
                 { Target.transform.GetChild(0).Rotate(0, -1, 0); return; }
                 Target.transform.Rotate(0, -1, 0);
             }
@@ -245,8 +247,60 @@ public class DualContouring : MonoBehaviour
         }
 
         MeshFilter.mesh = Mesh;
+
+        ApplyOutline();
     }
 
+    void ApplyOutline()
+    {
+        Transform outlineTransform = transform.Find("Outline");
+        GameObject outlineObj;
+        MeshFilter outlineMF;
+
+        if (outlineTransform == null)
+        {
+            outlineObj = new GameObject("Outline");
+            outlineObj.transform.SetParent(transform, false);
+            outlineObj.transform.localPosition = Vector3.zero;
+            outlineObj.transform.localRotation = Quaternion.identity;
+            outlineObj.transform.localScale = Vector3.one * 1.02f;
+            Vector3 meshCentre = Mesh.bounds.center;
+            outlineObj.transform.localPosition = meshCentre - meshCentre * 1.02f;
+            outlineMF = outlineObj.AddComponent<MeshFilter>();
+
+            var mr = outlineObj.AddComponent<MeshRenderer>();
+            mr.material = OutlineMaterial;
+            mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            mr.receiveShadows = false;
+        }
+        else
+        {
+            outlineObj = outlineTransform.gameObject;
+            outlineMF = outlineObj.GetComponent<MeshFilter>();
+        }
+
+        // Always re-initialise OutlineMesh if lost (new instance, domain reload, etc.)
+        if (OutlineMesh == null)
+        {
+            OutlineMesh = new Mesh();
+            OutlineMesh.MarkDynamic();
+            OutlineMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+            outlineMF.mesh = OutlineMesh;
+        }
+
+        int[] invertedTris = new int[Triangles.Count];
+        for (int i = 0; i < Triangles.Count; i += 3)
+        {
+            invertedTris[i] = Triangles[i];
+            invertedTris[i + 1] = Triangles[i + 2];
+            invertedTris[i + 2] = Triangles[i + 1];
+        }
+
+        OutlineMesh.Clear();
+        OutlineMesh.SetVertices(Vertices);
+        OutlineMesh.SetTriangles(invertedTris, 0);
+        OutlineMesh.RecalculateNormals();
+    }
 
     // Thread-safe version of ProcessCell — no shared buffers, all locals
     bool ProcessCellThreadSafe(int x, int y, int z, out Vector3 Vertex)
@@ -692,7 +746,7 @@ public class DualContouring : MonoBehaviour
         debris.AddComponent<DebrisCleanup>();
 
         var dc = debris.AddComponent<DualContouring>();
-
+        dc.OutlineMaterial = OutlineMaterial;
         dc.MDims = MDims;
         dc.IsoLevel = IsoLevel;
 
@@ -829,14 +883,11 @@ public class DualContouring : MonoBehaviour
 
         UnityEngine.Plane Plane = new UnityEngine.Plane(PlaneNormal, StartPos);
 
-        int MinY = Mathf.Clamp(Mathf.FloorToInt(Mathf.Min(StartPos.y, EndPos.y) - 2f), 0, MDims.y - 1);
-        int MaxY = Mathf.Clamp(Mathf.CeilToInt(Mathf.Max(StartPos.y, EndPos.y) + 2f), 0, MDims.y - 1);
-
 
         // Carve pass — spread across frames by yielding every few rows
         for (int x = 0; x < MDims.x; x++)
         {
-            for (int y = MinY; y <= MaxY; y++)
+            for (int y = 0; y < MDims.y; y++)
                 for (int z = 0; z < MDims.z; z++)
                 {
                     float PlaneDistance = Plane.GetDistanceToPoint(new Vector3(x, y, z));
@@ -848,7 +899,7 @@ public class DualContouring : MonoBehaviour
             if (x % 1 == 0) yield return null;
         }
 
-        var islands = FindIslands(0, MDims.x - 1, MinY, MaxY, 0, MDims.z - 1);
+        var islands = FindIslands(0, MDims.x - 1, 0, MDims.y - 1, 0, MDims.z - 1);
         yield return null;
 
         if (islands.Count > 0)
@@ -934,6 +985,7 @@ public class DualContouring : MonoBehaviour
         yield return null;
         //Mesh.RecalculateNormals();
         MeshFilter.mesh = Mesh;
+        ApplyOutline();
     }
 
     

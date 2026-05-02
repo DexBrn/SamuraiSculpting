@@ -1,6 +1,5 @@
 using UnityEngine;
 using Unity.Mathematics;
-using EzySlice;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +28,6 @@ public class Slicing : MonoBehaviour
 
     public Material MarbleMat;
     public Material TantoCutMat;
-    TextureRegion Region;
 
     public int MoveMode = 1;
 

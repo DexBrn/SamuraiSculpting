@@ -12,7 +12,7 @@ public class DebrisCleanup : MonoBehaviour
 
     IEnumerator DestroyAfterTime()
     {
-        yield return new WaitForSeconds(3);
+        yield return new WaitForSeconds(2);
         Destroy(gameObject);
         Destroy(this);
     }

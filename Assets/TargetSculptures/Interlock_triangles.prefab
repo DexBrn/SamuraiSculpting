@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4310760278649686904}
   m_Layer: 6
   m_Name: Interlock_triangles
-  m_TagString: Untagged
+  m_TagString: ParentRotate
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

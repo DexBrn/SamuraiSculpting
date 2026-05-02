@@ -18,8 +18,8 @@ MonoBehaviour:
     your father's Tanto.
   TargetSculptures:
   - {fileID: 7674019229823096875, guid: 999fc5941f38089409a4d4c058e5d481, type: 3}
-  - {fileID: 5576439514194472986, guid: 935b28a80d9c85745a8e09f151e53cfc, type: 3}
-  - {fileID: 9082097936821847819, guid: 48f379357fc962a46aa30070a817edd0, type: 3}
+  - {fileID: 3862800057638469527, guid: 7fb0475c6adf6534eb7824b1065827eb, type: 3}
+  - {fileID: 609108391012860803, guid: 1dfc11afba7304b48bcd9940c7f1f678, type: 3}
   Accuracy:
   - 55
   - 50
@@ -44,15 +44,16 @@ MonoBehaviour:
   - "Woah woah hold your horses, I still don\u2019t trust you fully to not MESS IT
     UP for both of us."
   - "No no, it\u2019s not like that. You\u2019re not that bad! I mean WOW the state
-    of that simple geometry! Heh, okay okay, Bill\u2019s got some more marble for
-    you, and I\u2019ve got some more complicated targets for you to cut."
+    of that simple geometry! "
+  - "Heh, okay okay, Bill\u2019s got some more marble for you, and I\u2019ve got
+    some more complicated targets for you to cut."
   - "But before you start cutting through the whole block with your sword again,
     like a MANIAC, I\u2019ve got a present for you. A \u2018Tanto\u2019."
   - "(Bill I love you you\u2019re so cool) WOAH no need to get so excited it\u2019s
     just what I do!"
-  - "Anyway, you\u2019re probably wondering why I gave this to you, well with this
-    fancy new tool, you should be able to control your cutting more. You will be
-    able to cut a specific amount of the way through the marble."
+  - "Anyway, you\u2019re probably wondering why I gave this to you."
+  - Well with this fancy new tool, you should be able to control your cutting more.
+    You will be able to cut a specific amount of the way through the marble.
   - "Think of all of the new shapes you can cut! Well fortunately for you you don\u2019t
     need to think of it because you WILL be doing it."
   - Now as a matter of fact. Come on, get to it!

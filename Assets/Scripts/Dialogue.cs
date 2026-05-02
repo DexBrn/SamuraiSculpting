@@ -25,7 +25,7 @@ public class Dialogue : MonoBehaviour
         LevelManager = GetComponent<LevelManager>();
 
         if (PlayerPrefs.GetInt("Continuing") == 1)
-            LoadLevelDialogue(LevelManager.LevelList[PlayerPrefs.GetInt("Selected Level")]);
+            LoadLevelDialogue(LevelManager.LevelList[PlayerPrefs.GetInt("SelectedLevel")]);
         else
         {
             string OpeningLine = TextList[Random.Range(0, TextList.Count)];

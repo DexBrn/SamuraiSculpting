@@ -57,6 +57,16 @@ public class LevelManager : MonoBehaviour
             CurrentLevel = PlayerPrefs.GetInt("SelectedLevel");
             CurrentTarget = Instantiate(LevelList[CurrentLevel].TargetSculptures[0]);
             CurrentTarget.name = "Target";
+            GameObject VisibleTarget = Instantiate(LevelList[CurrentLevel].TargetSculptures[0]);
+            VisibleTarget.layer = LayerMask.GetMask("Default");
+            VisibleTarget.transform.parent = CurrentTarget.transform;
+            VisibleTarget.name = "VisibleTarget";
+            var Outline = VisibleTarget.AddComponent<BetterOutline>();
+            Outline.OutlineMode = BetterOutline.Mode.OutlineVisible;
+            Outline.OutlineColor = Color.black;
+            Outline.OutlineWidth = 4.15f;
+            if (VisibleTarget.transform.childCount > 0)
+            { VisibleTarget.transform.GetChild(0).gameObject.layer = LayerMask.GetMask("Default"); if (VisibleTarget.transform.childCount > 0) { VisibleTarget.transform.GetChild(0).GetChild(0).gameObject.layer = LayerMask.GetMask("Default"); } }
             DCScript.Target = CurrentTarget;
             CurrentTargetIndex++;
         }
@@ -85,6 +95,18 @@ public class LevelManager : MonoBehaviour
             DCScript.ResetMarble();
             CurrentTarget = Instantiate(LevelList[CurrentLevel].TargetSculptures[CurrentTargetIndex]);
             CurrentTarget.name = "Target";
+
+            GameObject VisibleTarget = Instantiate(LevelList[CurrentLevel].TargetSculptures[CurrentTargetIndex]);
+            VisibleTarget.layer = LayerMask.GetMask("Default");
+            VisibleTarget.transform.parent = CurrentTarget.transform;
+            VisibleTarget.name = "VisibleTarget";
+            if (VisibleTarget.transform.childCount > 0)
+            { VisibleTarget.transform.GetChild(0).gameObject.layer = LayerMask.GetMask("Default"); if (VisibleTarget.transform.GetChild(0).childCount > 0) { VisibleTarget.transform.GetChild(0).GetChild(0).gameObject.layer = LayerMask.GetMask("Default"); } }
+            var Outline = VisibleTarget.AddComponent<BetterOutline>();
+            Outline.OutlineMode = BetterOutline.Mode.OutlineVisible;
+            Outline.OutlineColor = Color.black;
+            Outline.OutlineWidth = 4.15f;
+
             DCScript.Target = CurrentTarget;
             CurrentTargetIndex++;
             

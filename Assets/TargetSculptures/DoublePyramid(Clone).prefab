@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 8370236110719959899}
   m_Layer: 6
   m_Name: DoublePyramid(Clone)
-  m_TagString: Untagged
+  m_TagString: ParentRotate
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
