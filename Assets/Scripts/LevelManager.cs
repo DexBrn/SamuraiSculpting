@@ -28,7 +28,7 @@ public class LevelManager : MonoBehaviour
     public int CurrentLevel;
 
     GameObject CurrentTarget;
-    int CurrentTargetIndex;
+    public int CurrentTargetIndex;
 
     public SaveFile SaveFile;
 
@@ -68,6 +68,8 @@ public class LevelManager : MonoBehaviour
             if (VisibleTarget.transform.childCount > 0)
             { VisibleTarget.transform.GetChild(0).gameObject.layer = LayerMask.GetMask("Default"); if (VisibleTarget.transform.childCount > 0) { VisibleTarget.transform.GetChild(0).GetChild(0).gameObject.layer = LayerMask.GetMask("Default"); } }
             DCScript.Target = CurrentTarget;
+            DCScript.VisibleTarget = VisibleTarget;
+            VisibleTarget.SetActive(false);
             CurrentTargetIndex++;
         }
         else
@@ -108,6 +110,8 @@ public class LevelManager : MonoBehaviour
             Outline.OutlineWidth = 4.15f;
 
             DCScript.Target = CurrentTarget;
+            DCScript.VisibleTarget = VisibleTarget;
+            VisibleTarget.SetActive(false);
             CurrentTargetIndex++;
             
         }

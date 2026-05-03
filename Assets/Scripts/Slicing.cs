@@ -44,7 +44,7 @@ public class Slicing : MonoBehaviour
     public bool DoingWalkOut;
 
 
-    void Start()
+    void Awake()
     {
         Sword = GameObject.Find("Sword");
 

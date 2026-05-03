@@ -19,6 +19,7 @@ public class DualContouring : MonoBehaviour
 
     public GameObject Sword;
     public GameObject Target;
+    public GameObject VisibleTarget;
 
     List<Vector3> Vertices = new List<Vector3>();
     List<int> Triangles = new List<int>();
@@ -54,7 +55,18 @@ public class DualContouring : MonoBehaviour
         if (transform.parent)
         {
             if (Input.GetKeyDown(KeyCode.H))
-                Target.SetActive(!Target.activeSelf);
+                if (VisibleTarget.activeSelf)
+                { Target.SetActive(false); VisibleTarget.SetActive(false); }
+                else if (!Target.activeSelf)
+                    Target.SetActive(true);
+                else if (!VisibleTarget.activeSelf)
+                    VisibleTarget.SetActive(true);
+
+            
+
+
+
+
         }
     }
 
