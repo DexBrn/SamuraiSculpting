@@ -143,60 +143,6 @@ public class DualContouring : MonoBehaviour
                 }
     }
 
-    /*
-    void GenerateMesh()
-    {
-
-        Vertices.Clear();
-        Triangles.Clear();
-
-        int[,,] VertexIndices = new int[MDims.x, MDims.y, MDims.z];
-        int TotalCells = (MDims.x - 1) * (MDims.y - 1) * (MDims.z - 1);
-
-        Vector3[] vertexResults = new Vector3[TotalCells];
-        bool[] vertexValid = new bool[TotalCells];
-
-
-        // Generate one vertex per cell that contains a surface crossing
-        for (int x = 0; x < MDims.x - 1; x++)
-            for (int y = 0; y < MDims.y - 1; y++)
-                for (int z = 0; z < MDims.z - 1; z++)
-                {
-                    Vector3 Vertex;
-                    if (ProcessCell(x, y, z, out Vertex))
-                    {
-                        VertexIndices[x, y, z] = Vertices.Count;
-                        Vertices.Add(Vertex);
-                    }
-                    else
-                        VertexIndices[x, y, z] = -1;
-                }
-
-        for (int x = 1; x < MDims.x - 2; x++)
-            for (int y = 1; y < MDims.y - 2; y++)
-                for (int z = 1; z < MDims.z - 2; z++)
-                {
-                    BuildQuads(x, y, z, VertexIndices, Triangles);
-                }
-
-        if (Mesh == null) Mesh = new Mesh();
-        Mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
-        Mesh.Clear();
-        Mesh.SetVertices(Vertices);
-        Mesh.SetTriangles(Triangles, 0);
-        //Mesh.vertices = Vertices.ToArray();
-        //Mesh.triangles = Triangles.ToArray();
-        Mesh.RecalculateNormals();
-        if (name!= "Marble")
-        {
-            DestroyImmediate(GetComponent<MeshFilter>());
-            MeshFilter= gameObject.AddComponent<MeshFilter>();
-        }
-        
-        MeshFilter.mesh = Mesh;
-    }
-
-    */
 
     public void GenerateMesh()
     {
@@ -796,89 +742,6 @@ public class DualContouring : MonoBehaviour
     /// ////////////ACTIONS//////////////////////////
 
 
-
-    /*
-    public void Slice(Vector3 StartPos, Vector3 EndPos)
-    {
-
-        StartPos = transform.InverseTransformPoint(StartPos);
-        EndPos = transform.InverseTransformPoint(EndPos);
-
-        Vector3 camForward = transform.InverseTransformDirection(Camera.main.transform.forward);
-
-        Vector3 screenDir = Vector3.ProjectOnPlane(EndPos - StartPos, camForward).normalized;
-        Vector3 PlaneNormal = Vector3.Cross(screenDir, camForward).normalized;
-
-        UnityEngine.Plane Plane = new UnityEngine.Plane(PlaneNormal, StartPos);
-
-        // --- BOUNDING BOX 
-        Vector3 Min = Vector3.Min(StartPos, EndPos) - Vector3.one * 2f;
-        Vector3 Max = Vector3.Max(StartPos, EndPos) + Vector3.one * 2f;
-
-        int MinX = Mathf.Clamp(Mathf.FloorToInt(Min.x), 0, MDims.x - 1);
-        int MaxX = Mathf.Clamp(Mathf.CeilToInt(Max.x), 0, MDims.x - 1);
-
-        int MinY = Mathf.Clamp(Mathf.FloorToInt(Min.y), 0, MDims.y - 1);
-        int MaxY = Mathf.Clamp(Mathf.CeilToInt(Max.y), 0, MDims.y - 1);
-
-        int MinZ = Mathf.Clamp(Mathf.FloorToInt(Min.z), 0, MDims.z - 1);
-        int MaxZ = Mathf.Clamp(Mathf.CeilToInt(Max.z), 0, MDims.z - 1);
-
-
-        print($"MaxX {MaxX}, x10 {MaxX * 10}, MaxZ {MaxZ}, x10 {MaxZ * 10}");
-
-        MinX = 0;
-        MinZ = 0;
-        MaxX = MDims.x-1;
-        MaxZ = MDims.z-1;
-
-
-
-        //Apply cut only in region
-        for (int x = MinX; x <= MaxX; x++)
-            for (int y = MinY; y <= MaxY; y++)
-                for (int z = MinZ; z <= MaxZ; z++)
-                {
-                    Vector3 Pos = new Vector3(x, y, z);
-                    
-                    float PlaneDistance = Plane.GetDistanceToPoint(Pos);
-
-                    
-
-                    if (Mathf.Abs(PlaneDistance) < 1f)
-                    {
-                        Density[x, y, z] = -100;
-                        //print($"Sliced at: {Pos} :: {PlaneDistance}");
-                    }
-                    
-                }
-        
-        
-        var islands = FindIslands(MinX, MaxX, MinY, MaxY, MinZ, MaxZ);
-
-        //Find Main Island
-        if (islands[0] != null)
-        {
-            List<Vector3Int> mainIsland = islands[0];
-            foreach (var island in islands)
-            {
-                if (island.Count > mainIsland.Count)
-                    mainIsland = island;
-
-            }
-            //Create Debris
-            foreach (var island in islands)
-            {
-                if (island == mainIsland) continue;
-
-                CreateDebris(island);
-            }
-        }
-        
-        
-        GenerateMesh();
-    }
-    */
     public void Slice(Vector3 StartPos, Vector3 EndPos)
     {
         StartCoroutine(SliceCoroutine(StartPos, EndPos));
@@ -916,17 +779,37 @@ public class DualContouring : MonoBehaviour
 
         if (islands.Count > 0)
         {
+            Vector3 targetLocal = transform.InverseTransformPoint(Target.transform.position);
+            Vector3 targetVoxel = new Vector3(
+                targetLocal.x + MDims.x * 0.5f,
+                targetLocal.y + MDims.y * 0.5f,
+                targetLocal.z + MDims.z * 0.5f
+            );
+
             List<Vector3Int> mainIsland = islands[0];
+            float bestDist = float.MaxValue;
+
             foreach (var island in islands)
-                if (island.Count > mainIsland.Count)
+            {
+                // Average position of all voxels in this island
+                Vector3 centroid = Vector3.zero;
+                foreach (var voxel in island)
+                    centroid += new Vector3(voxel.x, voxel.y, voxel.z);
+                centroid /= island.Count;
+                print(centroid);
+                print(targetVoxel/2);
+                float dist = Vector3.Distance(centroid, targetVoxel/2);
+                if (dist < bestDist)
+                {
+                    bestDist = dist;
                     mainIsland = island;
-            //int DebrisMade = 0;
+                }
+            }
+
             foreach (var island in islands)
             {
                 if (island == mainIsland) continue;
-                //if (DebrisMade >= 2) break;
                 CreateDebris(island);
-                //DebrisMade++;
                 yield return null;
             }
         }

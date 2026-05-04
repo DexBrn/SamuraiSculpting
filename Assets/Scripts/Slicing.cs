@@ -76,9 +76,6 @@ public class Slicing : MonoBehaviour
             if (Input.GetMouseButtonDown(0))
             {
                 TantoStartPoint = Sword.transform.position;
-                //GameObject Temp = Instantiate(Marble);
-                //Temp.transform.position = TantoStartPoint;
-                //Temp.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
                 NewTantoCut = Instantiate(Sword);
                 NewTantoCut.GetComponent<MeshRenderer>().enabled = true;
                 NewTantoCut.transform.localScale = new Vector3(0.1f, 0.05f, 0.1f);
@@ -167,9 +164,15 @@ public class Slicing : MonoBehaviour
         }
         else
         {
+
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Plane plane = new Plane(-Camera.main.transform.forward, new Vector3(0, 0, MarbleStartPos.z+0.55f));
+
             Vector3 MousePos = Input.mousePosition;
-            MousePos.z = MarbleStartPos.z - Camera.main.transform.position.z;
+            MousePos.z = Sword.transform.position.z - Camera.main.transform.position.z;
             MousePos = Camera.main.ScreenToWorldPoint(MousePos);
+
+            
 
 
             if (Input.GetMouseButton(1))
@@ -180,10 +183,14 @@ public class Slicing : MonoBehaviour
             else
             {
                 Vector2 MInput = MousePos;
-                MInput.x = Mathf.Clamp(MInput.x, 0.09f, 1.09f);
-                MInput.y = Mathf.Clamp(MInput.y, 1.09f, 3.09f);
+                MInput.x = Mathf.Clamp(MInput.x, 0.09f, .79f);
+                MInput.y = Mathf.Clamp(MInput.y, 1.49f, 2.79f);
 
-                Sword.transform.position = MousePos; 
+                if (plane.Raycast(ray, out float distance))
+                {
+                    Vector3 mousePos = ray.GetPoint(distance);
+                    Sword.transform.position = mousePos;
+                }
                 ViewModel.transform.localPosition = Vector3.Slerp(ViewModel.transform.localPosition, new Vector3(MInput.x, MInput.y-2, 0) +OriginalViewModelPos, 3f * Time.deltaTime);
 
             }
@@ -192,35 +199,6 @@ public class Slicing : MonoBehaviour
 
 
     }
-
-   
-    /*
-    public IEnumerator KatanaSlice(Vector3 SwordPos, Vector3 SwordDirection)
-    {
-        
-        GameObject[] CutResults = Marble.SliceInstantiate(SwordPos, SwordDirection, Region, MarbleMat); //Do the cut
-        GameObject Debris;
-        float SliceDirection;
-
-        if (CutResults == null) //If the cut is off the screen, break (Otherwise fully destroys model & breaks)
-        { yield break; }
-
-        Destroy(Marble); //Remove obsolete Gameobject
-
-        if (CutResults[0].GetComponent<Renderer>().bounds.extents.y > CutResults[1].GetComponent<Renderer>().bounds.extents.y || CutResults[0].GetComponent<Renderer>().bounds.extents.x > CutResults[1].GetComponent<Renderer>().bounds.extents.x)
-        { Marble = CutResults[0]; Debris = CutResults[1]; } 
-        else {Marble = CutResults[1]; Debris = CutResults[0]; } // Checks which side is debris & and which is marble
-
-        SliceDirection = Mathf.Sign(Sword.transform.position.x -Debris.transform.position.x); //Determine which direction to fling debris
-        Marble.AddComponent<MeshCollider>().convex = true;
-        Debris.AddComponent<MeshCollider>().convex = true;
-        Debris.AddComponent<Rigidbody>().AddForce(Vector3.up + Vector3.right * SliceDirection * 10, ForceMode.Impulse);
-        Marble.name = "Marble";
-        Debris.name = "Debris";
-        yield return new WaitForSeconds(2);
-        Destroy(Debris); //Clean up debris
-    }
-    */
 
     void TantoControl()
     {
@@ -255,7 +233,7 @@ public class Slicing : MonoBehaviour
         if (Direction !=  Vector3.zero)
             NewTantoCut.transform.rotation = Quaternion.LookRotation(Direction);
 
-        NewTantoCut.transform.localScale = new Vector3(2.1f, 0.005f, Length+0.01f);
+        NewTantoCut.transform.localScale = new Vector3(2.25f, 0.005f, Length+0.01f);
 
 
     }
@@ -350,10 +328,30 @@ public class Slicing : MonoBehaviour
 
     IEnumerator KatanaBeginning()
     {
+        ViewModel.SetActive(false);
         Sword.SetActive(false);
         CanAttack = false;
         DoingWalkOut = true;
-        yield return new WaitForSeconds(6.0f);
+
+        while (true)
+        {
+            yield return new WaitForSeconds(0.01f);
+            if (1 > Camera.main.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime)
+                continue;
+            else
+                break;
+        }
+        print("hi");
+        ViewModel.SetActive(true);
+        while (true)
+        {
+            yield return new WaitForSeconds(0.1f);
+            if (1 > ViewModel.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime)
+                continue;
+            else
+                break;
+        }
+        //yield return new WaitForSeconds(6.0f);
         ViewModel.GetComponent<Animator>().enabled = false;
         Sword.SetActive(true);
         DoingWalkOut = false;
@@ -363,7 +361,15 @@ public class Slicing : MonoBehaviour
     IEnumerator SkipOpening()
     {
         Time.timeScale = 100;
-        yield return new WaitForSeconds(50);
+        
+        while (true)
+        {
+            yield return new WaitForSeconds(5);
+            if (1 > Camera.main.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime)
+                continue;
+            else
+                break;
+        }
         Time.timeScale = 1;
     }
 }
