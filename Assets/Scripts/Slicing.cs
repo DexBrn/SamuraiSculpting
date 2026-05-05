@@ -14,7 +14,8 @@ public class Slicing : MonoBehaviour
     GameObject Sword;
     public GameObject KatanaModel;
     public GameObject TantoModel;
-
+    public GameObject KatanaArms;
+    public GameObject TantoArms;
 
     DualContouring DCScript;
     Timer Timer;
@@ -91,31 +92,8 @@ public class Slicing : MonoBehaviour
             }
             if (Input.GetMouseButtonUp(0))
             {
+                StartCoroutine(SliceVisual());
 
-                Vector3 voxelStart = WorldToVoxel(TantoStartPoint);
-                Vector3 voxelEnd = WorldToVoxel(TantoEndPoint);
-                Vector3 camForward = Marble.transform.InverseTransformDirection(Camera.main.transform.forward);
-                Vector3 screenDir = Vector3.ProjectOnPlane(voxelEnd - voxelStart, camForward).normalized;
-                Vector3 PlaneNormal = Vector3.Cross(screenDir, camForward).normalized;
-                Vector3 direction = (voxelEnd - voxelStart).normalized;
-                float length = Vector3.Distance(voxelStart, voxelEnd);
-
-                Vector3 up = Camera.main.transform.forward;
-                if (Vector3.Dot(direction, up) > 0.99f)
-                    up = Vector3.up;
-
-                Quaternion rotation = Quaternion.LookRotation(direction, PlaneNormal);
-
-                float thickness = 0.75f;
-                Vector3 MDims = DCScript.MDims;
-                float depth = Mathf.Max(MDims.x, MDims.y, MDims.z);
-                Vector3 halfSize = new Vector3(depth, thickness, length * 0.5f);
-                Vector3 centre = (voxelStart + voxelEnd) * 0.5f;
-
-                StartCoroutine(ApplyCutAndSpawnDebris(centre, halfSize, rotation));
-
-                CutCount++;
-                Timer.TimerOn = true;
             }   
         }
 
@@ -133,10 +111,11 @@ public class Slicing : MonoBehaviour
                 StartCoroutine(SkipOpening());
 
 
+
         if (Input.GetKeyDown(KeyCode.Alpha1))
-        { WeaponOn = 1; KatanaModel.SetActive(true); TantoModel.SetActive(false); }
+        { WeaponOn = 1; StartCoroutine(SwitchWeaponVisual());  }
         if (Input.GetKeyDown(KeyCode.Alpha2))
-        { WeaponOn = 2; KatanaModel.SetActive(false); TantoModel.SetActive(true); }
+        { WeaponOn = 2; StartCoroutine(SwitchWeaponVisual()); }
 
     }
 
@@ -253,22 +232,105 @@ public class Slicing : MonoBehaviour
     {
         if (CanAttack)
         {
-            CanAttack = false;
-            CutCount++;
-            Timer.TimerOn = true;
-            ViewModel.GetComponent<Animator>().enabled = true;
-            ViewModel.GetComponent<Animator>().SetBool("IsCutting", true);
-            yield return new WaitForSeconds(0.22f);
-            DCScript.Slice(Sword.transform.position - Sword.transform.up * 2, Sword.transform.position + Sword.transform.up * 2);
-            yield return new WaitForSeconds(0.09f);
-            ViewModel.GetComponent<Animator>().SetBool("IsCutting", false);
-            yield return new WaitForSeconds(.59f);
-            ViewModel.GetComponent<Animator>().enabled = false;
-            CanAttack = true;
+            if (WeaponOn == 1)
+            {
+                CanAttack = false;
+                CutCount++;
+                Timer.TimerOn = true;
+                ViewModel.GetComponent<Animator>().enabled = true;
+                ViewModel.GetComponent<Animator>().SetBool("IsCutting", true);
+                yield return new WaitForSeconds(0.22f);
+                DCScript.Slice(Sword.transform.position - Sword.transform.up * 2, Sword.transform.position + Sword.transform.up * 2);
+                yield return new WaitForSeconds(0.09f);
+                ViewModel.GetComponent<Animator>().SetBool("IsCutting", false);
+                yield return new WaitForSeconds(.59f);
+                ViewModel.GetComponent<Animator>().enabled = false;
+                CanAttack = true;
+            }
+            else if (WeaponOn == 2)
+            {
+                
+
+                ViewModel.GetComponent<Animator>().enabled = true;
+                ViewModel.GetComponent<Animator>().speed = 1;
+                ViewModel.GetComponent<Animator>().Play("TantoCut");
+
+
+                while (true)
+                {
+                    yield return new WaitForSeconds(0.001f);
+                    if (1 > ViewModel.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime)
+                        continue;
+                    else
+                        break;
+                }
+                Vector3 voxelStart = WorldToVoxel(TantoStartPoint);
+                Vector3 voxelEnd = WorldToVoxel(TantoEndPoint);
+                Vector3 camForward = Marble.transform.InverseTransformDirection(Camera.main.transform.forward);
+                Vector3 screenDir = Vector3.ProjectOnPlane(voxelEnd - voxelStart, camForward).normalized;
+                Vector3 PlaneNormal = Vector3.Cross(screenDir, camForward).normalized;
+                Vector3 direction = (voxelEnd - voxelStart).normalized;
+                float length = Vector3.Distance(voxelStart, voxelEnd);
+
+                Vector3 up = Camera.main.transform.forward;
+                if (Vector3.Dot(direction, up) > 0.99f)
+                    up = Vector3.up;
+
+                Quaternion rotation = Quaternion.LookRotation(direction, PlaneNormal);
+
+                float thickness = 0.75f;
+                Vector3 MDims = DCScript.MDims;
+                float depth = Mathf.Max(MDims.x, MDims.y, MDims.z);
+                Vector3 halfSize = new Vector3(depth, thickness, length * 0.5f);
+                Vector3 centre = (voxelStart + voxelEnd) * 0.5f;
+
+                StartCoroutine(ApplyCutAndSpawnDebris(centre, halfSize, rotation));
+
+                CutCount++;
+                Timer.TimerOn = true;
+
+
+                CanAttack = false;
+                ViewModel.GetComponent<Animator>().enabled = false;
+                CanAttack = true;
+
+
+
+
+            }
         }
         
 
     }
+
+
+    IEnumerator SwitchWeaponVisual()
+    {
+
+        ViewModel.GetComponent<Animator>().enabled = true;
+
+        if (WeaponOn == 1)
+        { KatanaModel.SetActive(true); TantoModel.SetActive(false); KatanaArms.SetActive(true); TantoArms.SetActive(false); ViewModel.GetComponent<Animator>().speed = 4; ViewModel.GetComponent<Animator>().Play("KatanaOpeningTwo"); }
+        else if (WeaponOn == 2)
+        { KatanaModel.SetActive(false); TantoModel.SetActive(true); KatanaArms.SetActive(false); TantoArms.SetActive(true); ViewModel.GetComponent<Animator>().Play("TantoOpen"); }
+
+
+
+
+        while (true)
+        {
+            yield return new WaitForSeconds(0.01f);
+            if (1 > ViewModel.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime)
+                continue;
+            else
+                break;
+        }
+        ViewModel.GetComponent<Animator>().speed = 1;
+        ViewModel.GetComponent<Animator>().enabled = false;
+
+
+    }
+
 
 
     IEnumerator ApplyCutAndSpawnDebris(Vector3 centre, Vector3 halfSize, Quaternion rotation)
@@ -341,7 +403,6 @@ public class Slicing : MonoBehaviour
             else
                 break;
         }
-        print("hi");
         ViewModel.SetActive(true);
         while (true)
         {
