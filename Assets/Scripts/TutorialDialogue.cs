@@ -45,7 +45,7 @@ public class TutorialDialogue : MonoBehaviour
             TutorialIndex = 0;
 
         //Conditions for each tutorial continuation
-        if (TutorialIndex == 0 && Input.GetMouseButtonDown(0) && !WritingText)
+        if (TutorialIndex == 0 && Input.GetMouseButtonDown(0) && !WritingText && GameObject.Find("Sword") != null)
         { TutorialIndex = 1; StartCoroutine(WriteText(TutorialText[TutorialIndex])); };
 
         if (TutorialIndex == 1 && GameObject.Find("Sword").transform.rotation != Quaternion.identity && Input.GetMouseButtonDown(0) && !WritingText)

@@ -26,7 +26,7 @@ public class LevelManager : MonoBehaviour
 
     public int CurrentLevel;
 
-    GameObject CurrentTarget;
+    public GameObject CurrentTarget;
     public int CurrentTargetIndex;
 
     public SaveFile SaveFile;
@@ -39,6 +39,8 @@ public class LevelManager : MonoBehaviour
     public Vector3 PreviewPosition;
 
     public GameObject LoadingScreen;
+
+    public AudioClip ButtonClick;
 
     void Awake()
     {
@@ -125,6 +127,7 @@ public class LevelManager : MonoBehaviour
 
     public void SelectLevel(int LevelId)
     {
+        GetComponent<AudioSource>().PlayOneShot(ButtonClick);
         LevelNameObj.text = LevelList[LevelId].Name;
         LevelDescriptionObj.text = LevelList[LevelId].Description;
 
@@ -157,6 +160,7 @@ public class LevelManager : MonoBehaviour
 
     public void LoadLevel()
     {
+        GetComponent<AudioSource>().PlayOneShot(ButtonClick);
         int NextLevel = PlayerPrefs.GetInt("SelectedLevel");
         Dialogue.LoadLevelDialogue(LevelList[NextLevel]);
     }
@@ -187,6 +191,7 @@ public class LevelManager : MonoBehaviour
 
     public void NextLevel()
     {
+        GetComponent<AudioSource>().PlayOneShot(ButtonClick);
         PlayerPrefs.SetInt("SelectedLevel", CurrentLevel+1);
         PlayerPrefs.SetInt("Continuing", 1);
         StartCoroutine(LoadVan());
@@ -194,11 +199,13 @@ public class LevelManager : MonoBehaviour
     
     public void RetryLevel()
     {
+        GetComponent<AudioSource>().PlayOneShot(ButtonClick);
         SceneManager.LoadScene("Main");
     }
      
     public void GoToMenu()
     {
+        GetComponent<AudioSource>().PlayOneShot(ButtonClick);
         StartCoroutine(LoadVan());
     }
 

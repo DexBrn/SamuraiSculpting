@@ -21,11 +21,11 @@ MonoBehaviour:
   - {fileID: 3862800057638469527, guid: 7fb0475c6adf6534eb7824b1065827eb, type: 3}
   - {fileID: 609108391012860803, guid: 1dfc11afba7304b48bcd9940c7f1f678, type: 3}
   Accuracy:
+  - 95
+  - 80
+  - 70
+  - 60
   - 55
-  - 50
-  - 40
-  - 35
-  - 20
   TimeTaken:
   - 60
   - 90
@@ -34,10 +34,10 @@ MonoBehaviour:
   - 240
   Cuts:
   - 12
-  - 24
   - 36
   - 48
   - 60
+  - 75
   PreLevelDialogue:
   - "Hey NICE job on those shapes kid! Is it just me or can you already SMELL the
     money. It smells good doesn\u2019t it?"

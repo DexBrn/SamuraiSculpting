@@ -8249,6 +8249,8 @@ MonoBehaviour:
   MoveMode: 2
   WeaponOn: 1
   DoingWalkOut: 0
+  SwordSlash: {fileID: 8300000, guid: 8f895056c365b7d4fa86e87fb3ccabb9, type: 3}
+  MarbleImpact: {fileID: 8300000, guid: 90fc3cd29cec19f4c9764c23788a0b1b, type: 3}
 --- !u!4 &1551380614
 Transform:
   m_ObjectHideFlags: 0
@@ -8463,8 +8465,8 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: a33ac8b9f602ac34c86a29dee7b9c94c, type: 3}
-  m_Resource: {fileID: 8300000, guid: a33ac8b9f602ac34c86a29dee7b9c94c, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 5076315cb6bc6474c89cc59aa2bbbb51, type: 3}
+  m_Resource: {fileID: 8300000, guid: 5076315cb6bc6474c89cc59aa2bbbb51, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1

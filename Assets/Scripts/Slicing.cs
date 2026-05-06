@@ -45,11 +45,17 @@ public class Slicing : MonoBehaviour
 
     public bool DoingWalkOut;
 
+    AudioSource AudioSource;
+    public AudioClip SwordSlash;
+    public AudioClip MarbleImpact;
+    
+
+
 
     void Awake()
     {
         Sword = GameObject.Find("Sword");
-
+        AudioSource = GetComponent<AudioSource>();
         CurRotation = Sword.transform.rotation.z;
         MarbleStartPos = Marble.transform.position;
         DCScript = Marble.GetComponent<DualContouring>();
@@ -116,7 +122,7 @@ public class Slicing : MonoBehaviour
                 MoveMode = 1;
         }
 
-        if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Return))
             if (DoingWalkOut)
                 StartCoroutine(SkipOpening());
 
@@ -253,12 +259,14 @@ public class Slicing : MonoBehaviour
                 CutCount++;
                 Timer.TimerOn = true;
                 ViewModel.GetComponent<Animator>().enabled = true;
+                AudioSource.PlayOneShot(SwordSlash);
                 ViewModel.GetComponent<Animator>().SetBool("IsCutting", true);
                 yield return new WaitForSeconds(0.22f);
                 DCScript.Slice(Sword.transform.position - Sword.transform.up * 2, Sword.transform.position + Sword.transform.up * 2);
                 yield return new WaitForSeconds(0.09f);
                 ViewModel.GetComponent<Animator>().SetBool("IsCutting", false);
                 StartCoroutine(Shake(0.05f, 0.01f));
+                AudioSource.PlayOneShot(MarbleImpact);
                 yield return new WaitForSeconds(.59f);
                 ViewModel.GetComponent<Animator>().enabled = false;
                 CanAttack = true;
@@ -272,14 +280,18 @@ public class Slicing : MonoBehaviour
                 ViewModel.GetComponent<Animator>().Play("TantoCut");
                 StartCoroutine(Shake(0.2f, 0.01f));
 
+                
                 while (true)
                 {
                     yield return new WaitForSeconds(0.001f);
+                    if (ViewModel.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime > 0.5001 && ViewModel.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime < 0.506)
+                        AudioSource.PlayOneShot(SwordSlash);
                     if (1 > ViewModel.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime)
                         continue;
                     else
                         break;
                 }
+                
                 Vector3 voxelStart = WorldToVoxel(TantoStartPoint);
                 Vector3 voxelEnd = WorldToVoxel(TantoEndPoint);
                 Vector3 camForward = Marble.transform.InverseTransformDirection(Camera.main.transform.forward);
@@ -301,6 +313,7 @@ public class Slicing : MonoBehaviour
                 Vector3 centre = (voxelStart + voxelEnd) * 0.5f;
 
                 StartCoroutine(ApplyCutAndSpawnDebris(centre, halfSize, rotation));
+                AudioSource.PlayOneShot(MarbleImpact);
                 StartCoroutine(Shake(0.05f, 0.01f));
                 CutCount++;
                 Timer.TimerOn = true;

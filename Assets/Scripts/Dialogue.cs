@@ -16,8 +16,8 @@ public class Dialogue : MonoBehaviour
 
     LevelManager LevelManager;
 
+    public Animator BillAnimator;
     public List<string> TextList = new List<string>();
-
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -54,7 +54,7 @@ public class Dialogue : MonoBehaviour
                 { StartCoroutine(LevelManager.LoadMain()); DialogueBox.transform.parent.gameObject.SetActive(false); return; }
 
                 if (CurrentText >= TextList.Count) //Pre Level Open
-                { DialogueBox.transform.parent.gameObject.SetActive(false); LevelSelect.SetActive(true); LevelManager.PopulateLevelGrades(); LevelManager.LockLevels(); return; }
+                { DialogueBox.transform.parent.gameObject.SetActive(false); LevelSelect.SetActive(true); LevelManager.PopulateLevelGrades(); LevelManager.LockLevels(); var Anim = "Idle1"; BillAnimator.Play(Anim, 0); return; } // + Random.Range(1, 4);
 
                 StartCoroutine(WriteText(TextList[CurrentText]));
             }
@@ -66,6 +66,10 @@ public class Dialogue : MonoBehaviour
     {
         DialogueBox.text = "";
         WritingText = true;
+
+        var Anim = "Talking"+Random.Range(1, 7);
+        BillAnimator.Play(Anim, 0);
+
         for (int i = 0; i < Text.Length; i++)
         {
             

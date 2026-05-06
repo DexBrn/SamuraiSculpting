@@ -17,12 +17,27 @@ MonoBehaviour:
   Description: After proving yourself to Bill, he's got you a job. Don't mess it
     up!
   TargetSculptures:
-  - {fileID: 832710699537922295, guid: d5ff7cee533939e4ba3bf0916bafa5a7, type: 3}
-  - {fileID: 832710699537922295, guid: d5ff7cee533939e4ba3bf0916bafa5a7, type: 3}
-  - {fileID: 832710699537922295, guid: d5ff7cee533939e4ba3bf0916bafa5a7, type: 3}
-  Accuracy: []
-  TimeTaken: []
-  Cuts: []
+  - {fileID: 3569129979673503426, guid: e5992fc15522ed845a3eac601a48e7f1, type: 3}
+  - {fileID: 974834083805489579, guid: 9446504af4d429b4b84fe8a886786932, type: 3}
+  - {fileID: 7776506877852132092, guid: aff2b61a237735b4daf8a7b147fcc01c, type: 3}
+  Accuracy:
+  - 95
+  - 80
+  - 70
+  - 60
+  - 55
+  TimeTaken:
+  - 60
+  - 90
+  - 120
+  - 180
+  - 240
+  Cuts:
+  - 12
+  - 36
+  - 48
+  - 60
+  - 75
   PreLevelDialogue:
   - "Kid, it\u2019s time. After that performance, I think it\u2019s time. Time to
     make some MONEY!!"

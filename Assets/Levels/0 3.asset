@@ -19,13 +19,13 @@ MonoBehaviour:
   TargetSculptures:
   - {fileID: 6344348880235093388, guid: 17b09df8b483a8644b8ab3724ee1691f, type: 3}
   - {fileID: 5728555565845614354, guid: edbaf137bf5e5cd44b1aacdcc28fa720, type: 3}
-  - {fileID: 51374560218390027, guid: 6812635dfc44b8345b593df88a480d1b, type: 3}
+  - {fileID: 6753651546330266726, guid: 1c1c898d9a42a78428dd116a5d010941, type: 3}
   Accuracy:
+  - 95
+  - 80
+  - 70
+  - 60
   - 55
-  - 50
-  - 40
-  - 35
-  - 20
   TimeTaken:
   - 60
   - 90
@@ -34,10 +34,10 @@ MonoBehaviour:
   - 240
   Cuts:
   - 12
-  - 24
   - 36
   - 48
   - 60
+  - 75
   PreLevelDialogue:
   - Kid, that cutting, it brought a tear to my ear. It really did. I think you are
     nearly ready for the big leagues kid!

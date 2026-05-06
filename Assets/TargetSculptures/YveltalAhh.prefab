@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4933386258381950746}
   m_Layer: 6
   m_Name: YveltalAhh
-  m_TagString: Untagged
+  m_TagString: ParentRotate
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -28,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 7776506877852132092}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 32.361, y: 1.83, z: 2.55}
+  m_LocalPosition: {x: -0.01, y: 1.95, z: -5.41}
   m_LocalScale: {x: 3.8192062, y: 18.392145, z: 11.545184}
   m_ConstrainProportionsScale: 0
   m_Children: []

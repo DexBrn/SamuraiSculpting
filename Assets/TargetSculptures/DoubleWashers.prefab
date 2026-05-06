@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 1244201607501937163}
   m_Layer: 6
   m_Name: DoubleWashers
-  m_TagString: Untagged
+  m_TagString: ParentRotate
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -28,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 2808159522465011687}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 32.939, y: 0.648, z: 2.42}
+  m_LocalPosition: {x: 0.407, y: 0.767, z: -5.414}
   m_LocalScale: {x: 7.4671917, y: 9.921233, z: 9.921233}
   m_ConstrainProportionsScale: 0
   m_Children: []

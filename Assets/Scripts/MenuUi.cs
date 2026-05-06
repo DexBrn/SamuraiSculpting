@@ -6,6 +6,8 @@ public class MenuUi : MonoBehaviour
 {
     public GameObject LoadingScreen;
 
+    public AudioClip ButtonClick;
+
     public void PlayButton()
     {
         StartCoroutine(StartPlay());
@@ -13,6 +15,7 @@ public class MenuUi : MonoBehaviour
 
     IEnumerator StartPlay()
     {
+        GetComponent<AudioSource>().PlayOneShot(ButtonClick);
         LoadingScreenOn();
         yield return new WaitForSeconds(0.5f);
         SceneManager.LoadScene("Caravan Talent Agent");
@@ -20,6 +23,7 @@ public class MenuUi : MonoBehaviour
 
     public void ExitButton()
     {
+        GetComponent<AudioSource>().PlayOneShot(ButtonClick);
         Application.Quit();
     }
 

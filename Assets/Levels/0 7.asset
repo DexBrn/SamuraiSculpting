@@ -16,12 +16,27 @@ MonoBehaviour:
   Name: Modern Art
   Description: At least your buy 2 get 1 free deal is bringing in customers.
   TargetSculptures:
-  - {fileID: 832710699537922295, guid: d5ff7cee533939e4ba3bf0916bafa5a7, type: 3}
-  - {fileID: 832710699537922295, guid: d5ff7cee533939e4ba3bf0916bafa5a7, type: 3}
-  - {fileID: 832710699537922295, guid: d5ff7cee533939e4ba3bf0916bafa5a7, type: 3}
-  Accuracy: []
-  TimeTaken: []
-  Cuts: []
+  - {fileID: 7032857598395694987, guid: 568aad58877e5e8478cfc90dec52b1f4, type: 3}
+  - {fileID: 1419206803601260614, guid: 0c5229e6b50615846993d2439c6a5347, type: 3}
+  - {fileID: 51374560218390027, guid: 6812635dfc44b8345b593df88a480d1b, type: 3}
+  Accuracy:
+  - 95
+  - 80
+  - 70
+  - 60
+  - 55
+  TimeTaken:
+  - 60
+  - 90
+  - 120
+  - 180
+  - 240
+  Cuts:
+  - 12
+  - 36
+  - 48
+  - 60
+  - 75
   PreLevelDialogue:
   - How would you define modern art?
   - "No I don\u2019t think bland is the right word, I would say\u2026 Inspired."

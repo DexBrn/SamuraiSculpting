@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4568739383879533239}
   m_Layer: 6
   m_Name: X
-  m_TagString: Untagged
+  m_TagString: ParentRotate
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -28,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 1507178883288730395}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.7071067, z: -0, w: 0.70710695}
-  m_LocalPosition: {x: 32.44, y: 0.96, z: 2.598}
+  m_LocalPosition: {x: -0.021, y: 1.064, z: -5.39}
   m_LocalScale: {x: 15.240276, y: 15.240276, z: 15.240276}
   m_ConstrainProportionsScale: 0
   m_Children: []

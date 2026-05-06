@@ -16,12 +16,27 @@ MonoBehaviour:
   Name: Word of Mouth
   Description: Word has already gotten out, and people want in.
   TargetSculptures:
-  - {fileID: 832710699537922295, guid: d5ff7cee533939e4ba3bf0916bafa5a7, type: 3}
-  - {fileID: 832710699537922295, guid: d5ff7cee533939e4ba3bf0916bafa5a7, type: 3}
-  - {fileID: 832710699537922295, guid: d5ff7cee533939e4ba3bf0916bafa5a7, type: 3}
-  Accuracy: []
-  TimeTaken: []
-  Cuts: []
+  - {fileID: 1507178883288730395, guid: cc1f11eee9a1caa4689e80ff96e86f3d, type: 3}
+  - {fileID: 6207499930339442217, guid: e40abb82f6ca6d443ab585c4901d75eb, type: 3}
+  - {fileID: 2808159522465011687, guid: d064a6036d250194095b8c6ead376fde, type: 3}
+  Accuracy:
+  - 95
+  - 80
+  - 70
+  - 60
+  - 55
+  TimeTaken:
+  - 60
+  - 90
+  - 120
+  - 180
+  - 240
+  Cuts:
+  - 12
+  - 36
+  - 48
+  - 60
+  - 75
   PreLevelDialogue:
   - "BANG! That\u2019s how it\u2019s DONE! GOOD WORK KID! You smashed it out of the
     park with the sculpting, so much so that the client\u2019s rich friends already

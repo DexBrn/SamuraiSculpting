@@ -811,8 +811,8 @@ public class DualContouring : MonoBehaviour
             foreach (var island in islands)
             {
 
-                print(island.Count);
-                print(mainIsland.Count);
+                //print(island.Count);
+                //print(mainIsland.Count);
 
 
                 if (island.Count >= mainIsland.Count)
@@ -824,7 +824,7 @@ public class DualContouring : MonoBehaviour
 
             if (mainIsland.Count > secIsland.Count * 1.25f)
             {
-                print("Voxeling");
+                //print("Voxeling");
                 foreach (var voxel in mainIsland)
                 {
                     float dist = Vector3.Distance(new Vector3(voxel.x, voxel.y, voxel.z), targetVoxel / 2);

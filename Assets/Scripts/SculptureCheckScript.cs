@@ -10,9 +10,12 @@ public class SculptureCheckScript : MonoBehaviour
     public float Accuracy = 0;
     public float TotalAccuracy;
 
+    LevelManager LM;
+
     void Start()
     {
         //CheckTarget(LayerMask.GetMask("Xray"));
+        LM = GetComponent<LevelManager>();
         Marble = GameObject.Find("Marble");
     }
 
@@ -24,6 +27,9 @@ public class SculptureCheckScript : MonoBehaviour
 
     public void FullCheck()
     {
+        LM.CurrentTarget.SetActive(true);
+        LM.CurrentTarget.transform.rotation = Quaternion.identity;
+        Marble.transform.parent.rotation = Quaternion.identity;
         CheckTarget(LayerMask.GetMask("Xray"));
         SecondCheck();
         if (TotalAccuracy != 0)
