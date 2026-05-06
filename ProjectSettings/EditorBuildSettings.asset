@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/Main Menu.unity
+    guid: 5508f72879fd6fc4eac5ca7e18dde30f
+  - enabled: 1
     path: Assets/Scenes/Caravan Talent Agent.unity
     guid: 6a8f56167d9499a4b96999650106c71a
   - enabled: 1

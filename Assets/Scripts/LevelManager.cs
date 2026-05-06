@@ -4,8 +4,7 @@ using System.Collections.Generic;
 using System.Collections;
 using TMPro;
 using UnityEngine.UI;
-using UnityEditor.ShaderGraph.Internal;
-using static UnityEngine.GraphicsBuffer;
+
 public class LevelManager : MonoBehaviour
 {
 

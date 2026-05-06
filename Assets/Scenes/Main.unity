@@ -8580,7 +8580,7 @@ MonoBehaviour:
     sculpture
   DialogueBox: {fileID: 2042925753}
   LetterSpeed: 0.01
-  DoTutorial: 0
+  DoTutorial: 1
 --- !u!1 &1616850534
 GameObject:
   m_ObjectHideFlags: 0
