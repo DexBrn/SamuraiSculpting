@@ -16,6 +16,7 @@ public class Slicing : MonoBehaviour
     public GameObject TantoModel;
     public GameObject KatanaArms;
     public GameObject TantoArms;
+    public GameObject TantoSheath;
 
     DualContouring DCScript;
     Timer Timer;
@@ -80,19 +81,28 @@ public class Slicing : MonoBehaviour
                 NewTantoCut = Instantiate(Sword);
                 NewTantoCut.GetComponent<MeshRenderer>().enabled = true;
                 NewTantoCut.transform.localScale = new Vector3(0.1f, 0.05f, 0.1f);
-                NewTantoCut.name = "TantoCut";
+                //if (GameObject.Find("TantoCut"))
+                //    NewTantoCut.name = "NewTantoCut";
+                //else
+                    NewTantoCut.name = "TantoCut";
                 NewTantoCut.GetComponent<BoxCollider>().enabled = true;
                 NewTantoCut.AddComponent<Rigidbody>().useGravity = false;
                 NewTantoCut.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
                 NewTantoCut.GetComponent<MeshRenderer>().material = TantoCutMat;
+
+
             }
             if (Input.GetMouseButton(0))
             {
-                TantoControl();
+                    TantoControl();
             }
             if (Input.GetMouseButtonUp(0))
             {
-                StartCoroutine(SliceVisual());
+                //if (CanAttack)
+                    StartCoroutine(SliceVisual());
+                //else if (GameObject.Find("NewTantoCut"))
+                //    Destroy(GameObject.Find("NewTantoCut"));
+
 
             }   
         }
@@ -200,8 +210,12 @@ public class Slicing : MonoBehaviour
         );
         Color TantoColour = TantoGradient.Evaluate(Length /1.5f);
 
-        NewTantoCut.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", TantoColour);
-        NewTantoCut.GetComponent<MeshRenderer>().material.color = TantoColour;
+        if (NewTantoCut.GetComponent<MeshRenderer>())
+        {
+            NewTantoCut.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", TantoColour);
+            NewTantoCut.GetComponent<MeshRenderer>().material.color = TantoColour;
+        }
+        
 
         if (Length == 1.5f)
             TantoEndPoint = TantoStartPoint + (TantoEndPoint - TantoStartPoint).normalized * 1.5f;
@@ -235,6 +249,7 @@ public class Slicing : MonoBehaviour
             if (WeaponOn == 1)
             {
                 CanAttack = false;
+                
                 CutCount++;
                 Timer.TimerOn = true;
                 ViewModel.GetComponent<Animator>().enabled = true;
@@ -243,18 +258,19 @@ public class Slicing : MonoBehaviour
                 DCScript.Slice(Sword.transform.position - Sword.transform.up * 2, Sword.transform.position + Sword.transform.up * 2);
                 yield return new WaitForSeconds(0.09f);
                 ViewModel.GetComponent<Animator>().SetBool("IsCutting", false);
+                StartCoroutine(Shake(0.05f, 0.01f));
                 yield return new WaitForSeconds(.59f);
                 ViewModel.GetComponent<Animator>().enabled = false;
                 CanAttack = true;
             }
             else if (WeaponOn == 2)
             {
-                
 
+                CanAttack = false;
                 ViewModel.GetComponent<Animator>().enabled = true;
                 ViewModel.GetComponent<Animator>().speed = 1;
                 ViewModel.GetComponent<Animator>().Play("TantoCut");
-
+                StartCoroutine(Shake(0.2f, 0.01f));
 
                 while (true)
                 {
@@ -285,12 +301,12 @@ public class Slicing : MonoBehaviour
                 Vector3 centre = (voxelStart + voxelEnd) * 0.5f;
 
                 StartCoroutine(ApplyCutAndSpawnDebris(centre, halfSize, rotation));
-
+                StartCoroutine(Shake(0.05f, 0.01f));
                 CutCount++;
                 Timer.TimerOn = true;
 
 
-                CanAttack = false;
+                
                 ViewModel.GetComponent<Animator>().enabled = false;
                 CanAttack = true;
 
@@ -310,9 +326,9 @@ public class Slicing : MonoBehaviour
         ViewModel.GetComponent<Animator>().enabled = true;
 
         if (WeaponOn == 1)
-        { KatanaModel.SetActive(true); TantoModel.SetActive(false); KatanaArms.SetActive(true); TantoArms.SetActive(false); ViewModel.GetComponent<Animator>().speed = 4; ViewModel.GetComponent<Animator>().Play("KatanaOpeningTwo"); }
+        { KatanaModel.SetActive(true); TantoModel.SetActive(false); KatanaArms.SetActive(true); TantoArms.SetActive(false); TantoSheath.SetActive(false); ViewModel.GetComponent<Animator>().speed = 4; ViewModel.GetComponent<Animator>().Play("KatanaOpeningTwo"); }
         else if (WeaponOn == 2)
-        { KatanaModel.SetActive(false); TantoModel.SetActive(true); KatanaArms.SetActive(false); TantoArms.SetActive(true); ViewModel.GetComponent<Animator>().Play("TantoOpen"); }
+        { KatanaModel.SetActive(false); TantoModel.SetActive(true); KatanaArms.SetActive(false); TantoArms.SetActive(true); TantoSheath.SetActive(true); ViewModel.GetComponent<Animator>().Play("TantoOpen"); }
 
 
 
@@ -385,6 +401,8 @@ public class Slicing : MonoBehaviour
         DCScript.GenerateMesh();
 
         Destroy(GameObject.Find("TantoCut"));
+        if (GameObject.Find("NewTantoCut"))
+            Destroy(GameObject.Find("NewTantoCut"));
     }
 
 
@@ -433,4 +451,33 @@ public class Slicing : MonoBehaviour
         }
         Time.timeScale = 1;
     }
+
+
+    IEnumerator Shake(float Duration, float Magnitude)
+    {
+        Vector3 OriginalPos = Camera.main.transform.position;
+        Camera.main.GetComponent<Animator>().enabled = false;
+
+        float Elapsed = 0.0f;
+        while (Duration > Elapsed)
+        {
+            Elapsed += Time.deltaTime;
+
+            float x = UnityEngine.Random.Range(-1f, 1f) * Magnitude;
+            float y = UnityEngine.Random.Range(-1f, 1f) * Magnitude;
+
+            Camera.main.transform.localPosition += new Vector3(x, y, 0);
+
+            yield return null;
+
+        }
+
+        Camera.main.transform.position = OriginalPos;
+
+
+
+    }
+
+
+
 }

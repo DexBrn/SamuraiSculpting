@@ -34,6 +34,8 @@ public class DualContouring : MonoBehaviour
     private Mesh OutlineMesh;
     public Material OutlineMaterial;
 
+    public GameObject MarbleParticles;
+
     void Start()
     {
         Density = new float[MDims.x, MDims.y, MDims.z];
@@ -703,6 +705,8 @@ public class DualContouring : MonoBehaviour
         debris.AddComponent<MeshRenderer>().material = GetComponent<MeshRenderer>().material;
         debris.AddComponent<DebrisCleanup>();
 
+        
+
         var dc = debris.AddComponent<DualContouring>();
         dc.OutlineMaterial = OutlineMaterial;
         dc.MDims = MDims;
@@ -730,6 +734,21 @@ public class DualContouring : MonoBehaviour
 
         rb.mass = 1f;
         rb.AddForce(UnityEngine.Random.onUnitSphere * 10f, ForceMode.Impulse);
+        if (GameObject.Find("mp"))
+            Destroy(GameObject.Find("mp"));
+        GameObject mp = Instantiate(MarbleParticles);
+        //mp.transform.SetParent(debris.transform);
+        //mp.transform.localPosition = Vector3.zero;
+        //mp.transform.localScale = Vector3.one;
+        
+        mp.transform.position = new Vector3(
+            Mathf.Clamp(Sword.transform.position.x, -0.35f, 0.35f),
+            Mathf.Clamp(Sword.transform.position.y, 0f, 3f),
+            -5.4f
+            )  ;
+        
+        mp.transform.rotation = Sword.transform.rotation;
+        mp.name = "mp";
     }
 
 
@@ -779,32 +798,53 @@ public class DualContouring : MonoBehaviour
 
         if (islands.Count > 0)
         {
-            Vector3 targetLocal = transform.InverseTransformPoint(Target.transform.position);
             Vector3 targetVoxel = new Vector3(
-                targetLocal.x + MDims.x * 0.5f,
-                targetLocal.y + MDims.y * 0.5f,
-                targetLocal.z + MDims.z * 0.5f
+                transform.InverseTransformPoint(Target.transform.position).x + MDims.x * 0.5f,
+                transform.InverseTransformPoint(Target.transform.position).y + MDims.y * 0.5f,
+                transform.InverseTransformPoint(Target.transform.position).z + MDims.z * 0.5f
             );
 
             List<Vector3Int> mainIsland = islands[0];
+            List<Vector3Int> secIsland = islands[0];
             float bestDist = float.MaxValue;
 
             foreach (var island in islands)
             {
-                // Average position of all voxels in this island
-                Vector3 centroid = Vector3.zero;
-                foreach (var voxel in island)
-                    centroid += new Vector3(voxel.x, voxel.y, voxel.z);
-                centroid /= island.Count;
-                print(centroid);
-                print(targetVoxel/2);
-                float dist = Vector3.Distance(centroid, targetVoxel/2);
-                if (dist < bestDist)
-                {
-                    bestDist = dist;
+
+                print(island.Count);
+                print(mainIsland.Count);
+
+
+                if (island.Count >= mainIsland.Count)
                     mainIsland = island;
+                else if (island.Count >= secIsland.Count)
+                    secIsland = island;
+
+            }
+
+            if (mainIsland.Count > secIsland.Count * 1.25f)
+            {
+                print("Voxeling");
+                foreach (var voxel in mainIsland)
+                {
+                    float dist = Vector3.Distance(new Vector3(voxel.x, voxel.y, voxel.z), targetVoxel / 2);
+                    if (dist < bestDist)
+                    {
+                        bestDist = dist;
+                    }
+                }
+                foreach (var voxel in secIsland)
+                {
+                    float dist = Vector3.Distance(new Vector3(voxel.x, voxel.y, voxel.z), targetVoxel / 2);
+                    if (dist < bestDist)
+                    {
+                        bestDist = dist;
+                        mainIsland = secIsland;
+                    }
                 }
             }
+            
+
 
             foreach (var island in islands)
             {

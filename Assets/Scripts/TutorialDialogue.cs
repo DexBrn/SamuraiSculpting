@@ -54,7 +54,7 @@ public class TutorialDialogue : MonoBehaviour
         if (TutorialIndex == 2 && Input.GetKeyDown(KeyCode.Return) && !WritingText)
         { TutorialIndex = 3; DialogueBox.transform.parent.gameObject.SetActive(false); };
 
-        if (TutorialIndex == 3 && LevelManager.CurrentTargetIndex == 3 && !WritingText)
+        if (TutorialIndex == 3 && LevelManager.CurrentTargetIndex == 3 && !WritingText && DoTutorial)
         { WritingText = true; DialogueBox.transform.parent.gameObject.SetActive(true); StartCoroutine(WriteText(TutorialText[TutorialIndex])); TutorialIndex = 4; };
 
         if (TutorialIndex == 4 && !WritingText && LevelManager.CurrentLevel == 0)
