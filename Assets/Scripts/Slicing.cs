@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Mathematics;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,6 +69,12 @@ public class Slicing : MonoBehaviour
 
     void Update()
     {
+
+        TimeSpan TimeSpan = TimeSpan.FromSeconds(Timer.CurrentTime);
+        if (TimeSpan.Minutes > 0)
+            Timer.TimerText.text = $"{TimeSpan.Minutes:D2}:{TimeSpan.Seconds:D2}:{TimeSpan.Milliseconds / 10:D2}\nCuts: {CutCount}";
+        else
+            Timer.TimerText.text = $"{TimeSpan.Seconds:D2}:{TimeSpan.Milliseconds / 10:D2}\nCuts: {CutCount}";
 
         if (WeaponOn == 1)
         {
@@ -445,6 +452,7 @@ public class Slicing : MonoBehaviour
         }
         ViewModel.SetActive(true);
         AudioSource.PlayOneShot(SwordSheath);
+        GameObject.Find("SideScroll").GetComponent<Animator>().Play("SideScrollOpen");
         while (true)
         {
             yield return new WaitForSeconds(0.1f);

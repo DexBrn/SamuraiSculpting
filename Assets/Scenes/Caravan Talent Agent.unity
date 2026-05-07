@@ -232,7 +232,7 @@ MonoBehaviour:
     ever listened to \u2018Stay With Me\u2019!?"
   - "LOOK WHO\u2019S COME BACK TO BILL! It\u2019s alright.. I forgive you. BESIDES,
     we\u2019ve got MONEY to make!!"
-  DialogueSound: {fileID: 8300000, guid: 24f13b3277c26244c847ca99fb040b51, type: 3}
+  DialogueSound: {fileID: 8300000, guid: a6ef8feeeffd9fe45be0e809ebf317c3, type: 3}
 --- !u!4 &101639279
 Transform:
   m_ObjectHideFlags: 0
