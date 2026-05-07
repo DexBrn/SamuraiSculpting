@@ -19,6 +19,9 @@ public class Dialogue : MonoBehaviour
     public Animator BillAnimator;
     public List<string> TextList = new List<string>();
 
+    public AudioClip DialogueSound;
+
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -67,13 +70,15 @@ public class Dialogue : MonoBehaviour
         DialogueBox.text = "";
         WritingText = true;
 
-        var Anim = "Talking"+Random.Range(1, 7);
+        var Anim = "Talking"+Random.Range(2, 7);
         BillAnimator.Play(Anim, 0);
 
         for (int i = 0; i < Text.Length; i++)
         {
             
             yield return new WaitForSeconds(LetterSpeed);
+            if (i % 4 == 0)
+                GetComponent<AudioSource>().PlayOneShot(DialogueSound);
             if (!WritingText)
                 break;
             DialogueBox.text += Text[i];

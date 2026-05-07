@@ -48,6 +48,7 @@ public class Slicing : MonoBehaviour
     AudioSource AudioSource;
     public AudioClip SwordSlash;
     public AudioClip MarbleImpact;
+    public AudioClip SwordSheath;
     
 
 
@@ -71,46 +72,54 @@ public class Slicing : MonoBehaviour
         if (WeaponOn == 1)
         {
             Sword.GetComponent<MeshRenderer>().enabled = true;
-            if (Input.GetKeyDown(KeyCode.F) || Input.GetMouseButtonDown(0))
+            if (GameObject.Find("Results") == null)
             {
-                StartCoroutine(SliceVisual());
-                
-                
+                if (Input.GetKeyDown(KeyCode.F) || Input.GetMouseButtonDown(0))
+                {
+                    StartCoroutine(SliceVisual());
+
+
+                }
             }
+            
         }
         if (WeaponOn == 2)
         {
             Sword.GetComponent<MeshRenderer>().enabled = false;
-            if (Input.GetMouseButtonDown(0))
+            if (GameObject.Find("Results") == null)
             {
-                TantoStartPoint = Sword.transform.position;
-                NewTantoCut = Instantiate(Sword);
-                NewTantoCut.GetComponent<MeshRenderer>().enabled = true;
-                NewTantoCut.transform.localScale = new Vector3(0.1f, 0.05f, 0.1f);
-                //if (GameObject.Find("TantoCut"))
-                //    NewTantoCut.name = "NewTantoCut";
-                //else
+                if (Input.GetMouseButtonDown(0))
+                {
+                    TantoStartPoint = Sword.transform.position;
+                    NewTantoCut = Instantiate(Sword);
+                    NewTantoCut.GetComponent<MeshRenderer>().enabled = true;
+                    NewTantoCut.transform.localScale = new Vector3(0.1f, 0.05f, 0.1f);
+                    //if (GameObject.Find("TantoCut"))
+                    //    NewTantoCut.name = "NewTantoCut";
+                    //else
                     NewTantoCut.name = "TantoCut";
-                NewTantoCut.GetComponent<BoxCollider>().enabled = true;
-                NewTantoCut.AddComponent<Rigidbody>().useGravity = false;
-                NewTantoCut.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-                NewTantoCut.GetComponent<MeshRenderer>().material = TantoCutMat;
+                    NewTantoCut.GetComponent<BoxCollider>().enabled = true;
+                    NewTantoCut.AddComponent<Rigidbody>().useGravity = false;
+                    NewTantoCut.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+                    NewTantoCut.GetComponent<MeshRenderer>().material = TantoCutMat;
 
 
-            }
-            if (Input.GetMouseButton(0))
-            {
+                }
+
+                if (Input.GetMouseButton(0))
+                {
                     TantoControl();
-            }
-            if (Input.GetMouseButtonUp(0))
-            {
-                //if (CanAttack)
+                }
+                if (Input.GetMouseButtonUp(0))
+                {
+                    //if (CanAttack)
                     StartCoroutine(SliceVisual());
-                //else if (GameObject.Find("NewTantoCut"))
-                //    Destroy(GameObject.Find("NewTantoCut"));
+                    //else if (GameObject.Find("NewTantoCut"))
+                    //    Destroy(GameObject.Find("NewTantoCut"));
 
 
-            }   
+                }
+            }
         }
 
 
@@ -129,9 +138,9 @@ public class Slicing : MonoBehaviour
 
 
         if (Input.GetKeyDown(KeyCode.Alpha1))
-        { WeaponOn = 1; StartCoroutine(SwitchWeaponVisual());  }
+        { WeaponOn = 1; AudioSource.PlayOneShot(SwordSheath); StartCoroutine(SwitchWeaponVisual());  }
         if (Input.GetKeyDown(KeyCode.Alpha2))
-        { WeaponOn = 2; StartCoroutine(SwitchWeaponVisual()); }
+        { WeaponOn = 2; AudioSource.PlayOneShot(SwordSheath); StartCoroutine(SwitchWeaponVisual()); }
 
     }
 
@@ -435,6 +444,7 @@ public class Slicing : MonoBehaviour
                 break;
         }
         ViewModel.SetActive(true);
+        AudioSource.PlayOneShot(SwordSheath);
         while (true)
         {
             yield return new WaitForSeconds(0.1f);

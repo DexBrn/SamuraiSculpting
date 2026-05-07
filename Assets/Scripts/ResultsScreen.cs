@@ -75,6 +75,7 @@ public class ResultsScreen : MonoBehaviour
 
     }
 
+    /*
     public IEnumerator RevealResults()
     {
         ResultsPanel.SetActive(true);
@@ -96,6 +97,29 @@ public class ResultsScreen : MonoBehaviour
         RetryButton.SetActive(true);
         MenuButton.SetActive(true);
     }
+    */
+    public IEnumerator RevealResults()
+    {
+        ResultsPanel.SetActive(true);
+        yield return new WaitForSeconds(.1f);
+        AccuracyText.enabled = true;
+        AccuracyText.text = $"Accuracy: {Mathf.RoundToInt(SCS.TotalAccuracy)}% <color=#{ColorUtility.ToHtmlStringRGB(GradeColours[AccGrade])}>{PossibleGrades[AccGrade]}</color>";
+        yield return new WaitForSeconds(.1f);
+        TimeTakenText.enabled = true;
+        TimeTakenText.text = $"Time: {Mathf.RoundToInt(Timer.CurrentTime)}s <color=#{ColorUtility.ToHtmlStringRGB(GradeColours[TimeGrade])}>{PossibleGrades[TimeGrade]}</color>";
+        yield return new WaitForSeconds(.1f);
+        CutCountText.enabled = true;
+        CutCountText.text = $"Cuts: {Slicing.CutCount} <color=#{ColorUtility.ToHtmlStringRGB(GradeColours[CutsGrade])}>{PossibleGrades[CutsGrade]}</color>";
+        yield return new WaitForSeconds(.1f);
+        GradeText.enabled = true;
+        GradeText.text = $"<color=#{ColorUtility.ToHtmlStringRGB(FinalGradeColours[TotalGrades])}>{PossibleFinalGrades[TotalGrades]}</color>";
+        yield return new WaitForSeconds(5f);
+        if (PossibleGrades[AccGrade] != "F")
+            ContinueButton.SetActive(true);
+        RetryButton.SetActive(true);
+        MenuButton.SetActive(true);
+    }
+
 
     public void CheckGrades()
     {

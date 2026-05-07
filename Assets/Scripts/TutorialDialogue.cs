@@ -17,6 +17,8 @@ public class TutorialDialogue : MonoBehaviour
     public bool DoTutorial = true;
     bool StartedTutorial = false;
 
+    public AudioClip DialogueSound;
+
     void Start()
     {
         LevelManager = GetComponent<LevelManager>();
@@ -98,6 +100,8 @@ public class TutorialDialogue : MonoBehaviour
                 }
             }
             yield return new WaitForSeconds(LetterSpeed);
+            if (i % 4 == 0)
+                GetComponent<AudioSource>().PlayOneShot(DialogueSound, 0.5f);
             if (!WritingText)
                 break;
             DialogueBox.text += Text[i];
